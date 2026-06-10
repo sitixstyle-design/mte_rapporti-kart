@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Kart Rapporti PRO</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #0e0e0f;
+  --surface: #1a1a1c;
+  --surface2: #232325;
+  --surface3: #2a2a2c;
+  --accent: #e83a1e;
+  --accent2: #ff6b00;
+  --gold: #f0c040;
+  --text: #f0f0f0;
+  --muted: #888;
+  --border: #2e2e30;
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --blue: #3498db;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, #1a0a08 0%, #1a1a1c 100%);
+  border-bottom: 2px solid var(--accent);
+  padding: 14px 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 24px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.logo span { color: var(--accent); }
+.pro-badge {
+  background: linear-gradient(135deg, var(--gold), #e0a020);
+  color: #111;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.header-right { display: flex; align-items: center; gap: 8px; }
+.pro-toggle {
+  background: var(--surface2);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+
+/* ── NAV TABS ── */
+.nav-tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 53px;
+  z-index: 99;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab {
+  flex: 1;
+  min-width: 70px;
+  padding: 10px 6px 8px;
+  text-align: center;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  user-select: none;
+}
+.nav-tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+.nav-tab .tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+.nav-tab .pro-dot {
+  display: inline-block;
+  width: 5px; height: 5px;
+  background: var(--gold);
+  border-radius: 50%;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+
+/* ── CONTAINER ── */
+.container { padding: 16px; max-width: 500px; margin: 0 auto; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.card.pro-locked {
+  opacity: 0.5;
+  pointer-events: none;
+  position: relative;
+}
+.lock-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(14,14,15,0.7);
+  cursor: pointer;
+  pointer-events: all;
+  z-index: 5;
+}
+.lock-overlay .lock-icon { font-size: 28px; }
+.lock-overlay .lock-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+
+/* ── FORM ── */
+.field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.field-group.single { grid-template-columns: 1fr; }
+
+label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+input[type="number"], input[type="text"], select, textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 9px 11px;
+  outline: none;
+  transition: border-color 0.2s;
+  -moz-appearance: textfield;
+}
+input[type="text"], textarea {
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+textarea { resize: vertical; min-height: 60px; }
+select { font-size: 14px; font-weight: 500; cursor: pointer; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+/* ── INFO BOXES ── */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.info-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 11px;
+  text-align: center;
+}
+.info-box.full { grid-column: 1/-1; }
+.ib-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
+.ib-value { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--accent2); }
+
+/* ── BUTTONS ── */
+.btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0 16px;
+  height: 40px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-transform: uppercase;
+  transition: background 0.15s;
+}
+.btn:hover { background: #c72e14; }
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), #e0a020);
+  color: #111;
+}
+.btn-gold:hover { background: linear-gradient(135deg, #e8b830, #c89010); }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
+.btn-danger { background: var(--red); }
+.btn-danger:hover { background: #c0392b; }
+.btn-full { width: 100%; justify-content: center; display: flex; align-items: center; gap: 6px; }
+
+.add-row { display: flex; gap: 8px; align-items: flex-end; }
+.add-row .field-mini { flex: 1; }
+.add-row input { font-size: 18px; padding: 8px 10px; }
+
+/* ── PRESET BUTTONS ── */
+.preset-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.preset-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  line-height: 1.3;
+  text-align: center;
+}
+.preset-btn:hover, .preset-btn.active {
+  border-color: var(--accent2);
+  color: var(--accent2);
+  background: rgba(255,107,0,0.08);
+}
+
+/* ── TABLES ── */
+.rapporti-table { width: 100%; border-collapse: collapse; }
+.rapporti-table th {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted);
+  padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--border);
+}
+.rapporti-table td {
+  padding: 9px 7px; text-align: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px; font-weight: 600;
+  border-bottom: 1px solid #1e1e20;
+}
+.rapporti-table tr.attuale td { background: rgba(232,58,30,0.12); }
+.rapporti-table tr.attuale td:first-child { border-left: 3px solid var(--accent); }
+.vel-cell { font-size: 19px !important; }
+.vel-higher { color: var(--green); }
+.vel-lower { color: var(--red); }
+.vel-same { color: var(--accent2); }
+
+.badge-attuale {
+  font-size: 8px; background: var(--accent); color: white;
+  border-radius: 3px; padding: 1px 4px; letter-spacing: 1px;
+  margin-left: 3px; vertical-align: middle;
+}
+.diff-arrow { font-size: 12px; margin-right: 2px; }
+
+.delete-btn {
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 15px; padding: 2px 5px;
+  border-radius: 4px; transition: color 0.15s;
+}
+.delete-btn:hover { color: var(--red); }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 24px; color: var(--muted); font-size: 13px; }
+.empty-icon { font-size: 36px; margin-bottom: 8px; display: block; }
+
+/* ── HINT ── */
+.hint { font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+
+/* ── PRESET SETUP CARDS ── */
+.setup-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.setup-card:hover { border-color: var(--accent2); }
+.setup-card .sc-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 700; color: var(--text);
+}
+.setup-card .sc-detail { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.setup-card .sc-actions { display: flex; gap: 6px; }
+
+/* ── STORICO ── */
+.sessione-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.sessione-card .sc-header {
+  display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;
+}
+.sessione-card .sc-pista {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px; font-weight: 700;
+}
+.sessione-card .sc-data { font-size: 11px; color: var(--muted); }
+.sessione-card .sc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.sc-tag {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  color: var(--muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+}
+.sc-tag.highlight { color: var(--accent2); border-color: rgba(255,107,0,0.3); }
+.sc-note { font-size: 12px; color: var(--muted); margin-top: 6px; font-style: italic; line-height: 1.4; }
+
+/* ── DATABASE PISTE ── */
+.pista-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.pista-card .pc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.pista-card .pc-nome {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px; font-weight: 700;
+}
+.pista-card .pc-loc { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.pista-card .pc-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.pista-card .pc-box {
+  background: var(--surface3); border-radius: 5px; padding: 6px 8px; text-align: center;
+}
+.pista-card .pc-box .pcb-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.pista-card .pc-box .pcb-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 700; color: var(--accent2);
+}
+.carica-btn {
+  margin-top: 8px; width: 100%;
+  background: rgba(255,107,0,0.1);
+  border: 1px solid rgba(255,107,0,0.3);
+  color: var(--accent2);
+  border-radius: 5px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; padding: 6px; cursor: pointer;
+  text-transform: uppercase; transition: background 0.15s;
+}
+.carica-btn:hover { background: rgba(255,107,0,0.2); }
+
+/* ── KZ MARCE ── */
+.marce-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.marce-table th {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted);
+  padding: 5px 8px; text-align: center; border-bottom: 1px solid var(--border);
+}
+.marce-table td {
+  padding: 8px 6px; text-align: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 600;
+  border-bottom: 1px solid #1e1e20;
+}
+.marce-table td.marcia-label {
+  font-size: 13px; font-weight: 700; color: var(--muted);
+  text-align: left; padding-left: 10px;
+}
+.marce-table td.v-marcia { font-size: 18px; color: var(--accent2); }
+.marce-table tr.marcia-attiva td { background: rgba(46,204,113,0.08); }
+.marce-table tr.marcia-attiva td.v-marcia { color: var(--green); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px 14px 0 0;
+  padding: 20px 16px 32px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px; font-weight: 700;
+  margin-bottom: 16px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-close {
+  background: none; border: none; color: var(--muted);
+  font-size: 22px; cursor: pointer; padding: 0 4px;
+}
+
+/* ── UPSELL BANNER ── */
+.upsell-banner {
+  background: linear-gradient(135deg, rgba(240,192,64,0.12), rgba(232,58,30,0.08));
+  border: 1px solid rgba(240,192,64,0.3);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.upsell-banner .ub-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 900; color: var(--gold);
+  letter-spacing: 2px; margin-bottom: 6px;
+}
+.upsell-banner .ub-features { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.7; }
+.upsell-banner .ub-price {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 900; color: var(--text);
+  margin-bottom: 10px;
+}
+.upsell-banner .ub-price small { font-size: 14px; color: var(--muted); }
+
+/* ── SEARCH ── */
+.search-bar {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 100%;
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  margin-bottom: 12px;
+}
+.search-bar:focus { border-color: var(--accent); }
+
+/* ── CHIP FILTER ── */
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.chip {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted); border-radius: 20px;
+  font-size: 11px; font-weight: 600; padding: 4px 12px;
+  cursor: pointer; transition: all 0.15s;
+  font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.5px;
+}
+.chip.active { background: rgba(232,58,30,0.15); border-color: var(--accent); color: var(--text); }
+
+/* ── EXPORT ── */
+.export-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.export-row .btn { flex: 1; min-width: 120px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div style="display:flex;align-items:center;gap:10px">
+    <!-- Logo Racing MTE adattato per sfondo scuro -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="-35.348 103.709 601.649 367.582" height="44" style="display:block">
+      <!-- Simbolo grafico (rosso + bianco al posto del nero) -->
+      <g transform="rotate(0 148.443 287.500)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 1 1760 1760" height="227.582" width="227.582" y="173.709" x="34.652" preserveAspectRatio="xMinYMin" fill-rule="evenodd" clip-rule="evenodd" style="overflow:visible">
+          <path d="M1172 1588c-92,38 -191,58 -292,58 -204,0 -397,-80 -541,-224 -144,-144 -224,-338 -224,-541 0,-204 80,-397 224,-541 3,-3 6,-6 9,-9l-64 -97c-9,8 -18,16 -26,25 -166,165 -258,388 -258,622 0,234 92,457 258,622 165,166 388,258 622,258 163,0 320,-45 456,-128 -258,-378 -519,-764 -779,-1145l0 826 128 -177 0 -263 487 714z" fill="#ffffff"/>
+          <path d="M968 1045l107 -171 0 263 128 181 0 -829 -230 315 -428 -611c103,-50 217,-77 335,-77 204,0 397,80 541,224 144,144 224,338 224,541 0,204 -80,397 -224,541 -19,19 -38,36 -58,52l65 95c26,-21 51,-43 74,-66 165,-165 258,-388 258,-622 0,-234 -92,-457 -258,-622 -165,-166 -388,-258 -622,-258 -182,0 -358,56 -504,159 202,288 396,587 592,886z" fill="#DE3A3A"/>
+        </svg>
+      </g>
+      <!-- "Racing" in rosso -->
+      <g transform="rotate(0 356.841 322.193)">
+        <svg y="303.473" viewBox="0.56 8.36 134.36 37.44" x="289.661" height="37.44" width="134.36" style="overflow:visible">
+          <g fill="#DE3A3A">
+            <path d="M7.32 37.20L0.56 37.20L6.68 10.80L18 10.80Q22.08 10.80 24.46 12.78Q26.84 14.76 26.84 18.32L26.84 18.32Q26.84 21.20 25.50 23.20Q24.16 25.20 21.88 26.30Q19.60 27.40 16.72 27.52L16.72 27.52L15.20 27.88L8.88 27.88L10 23L15.24 23Q16.80 23 17.86 22.48Q18.92 21.96 19.48 21.02Q20.04 20.08 20.04 18.96L20.04 18.96Q20.04 17.40 19 16.70Q17.96 16.00 16.32 16.00L16.32 16.00L12.24 16.00L7.32 37.20ZM24.60 37.20L17.64 37.20L13.32 25.76L19.56 24.80L24.60 37.20ZM35.28 37.56L35.28 37.56Q33.28 37.56 31.70 36.62Q30.12 35.68 29.22 33.90Q28.32 32.12 28.32 29.52L28.32 29.52Q28.32 27.12 29 24.84Q29.68 22.56 30.98 20.74Q32.28 18.92 34.10 17.86Q35.92 16.80 38.20 16.80L38.20 16.80Q39.52 16.80 40.74 17.28Q41.96 17.76 42.82 18.76Q43.68 19.76 44 21.40L44 21.40L44.96 17.20L51.76 17.20L47.12 37.20L40.96 37.20L41.64 33.44Q40.68 35.36 39 36.46Q37.32 37.56 35.28 37.56ZM38.24 32.60Q39.24 32.60 40.08 31.96Q40.92 31.32 41.54 30.26Q42.16 29.20 42.50 27.94Q42.84 26.68 42.84 25.44L42.84 25.44Q42.84 24.32 42.46 23.50Q42.08 22.68 41.40 22.24Q40.72 21.80 39.76 21.80L39.76 21.80Q38.64 21.80 37.76 22.46Q36.88 23.12 36.28 24.16Q35.68 25.20 35.36 26.42Q35.04 27.64 35.04 28.76L35.04 28.76Q35.04 29.96 35.40 30.82Q35.76 31.68 36.46 32.14Q37.16 32.60 38.24 32.60ZM63.24 37.60Q60.08 37.60 57.82 36.42Q55.56 35.24 54.36 33.18Q53.16 31.12 53.16 28.48L53.16 28.48Q53.16 25.24 54.50 22.60Q55.84 19.96 58.42 18.38Q61 16.80 64.64 16.80L64.64 16.80Q67.40 16.80 69.46 17.72Q71.52 18.64 72.70 20.28Q73.88 21.92 73.96 24.12L73.96 24.12L67.44 25.16Q67.56 23.60 66.90 22.64Q66.24 21.68 64.60 21.68L64.60 21.68Q63.48 21.68 62.60 22.34Q61.72 23 61.10 24.08Q60.48 25.16 60.14 26.46Q59.80 27.76 59.80 29.08L59.80 29.08Q59.80 30.20 60.22 31.04Q60.64 31.88 61.42 32.34Q62.20 32.80 63.28 32.80L63.28 32.80Q64.36 32.80 65.30 32.06Q66.24 31.32 66.60 30.08L66.60 30.08L72.68 32.04Q71.56 34.64 69.10 36.12Q66.64 37.60 63.24 37.60ZM83.32 14.88Q81.56 14.88 80.58 14.16Q79.60 13.44 79.80 11.84L79.80 11.84Q80 10.00 81.04 9.18Q82.08 8.36 83.96 8.36L83.96 8.36Q85.76 8.36 86.74 9.12Q87.72 9.88 87.52 11.36L87.52 11.36Q87.32 13.32 86.26 14.10Q85.20 14.88 83.32 14.88ZM79 17.20L85.80 17.20L81.16 37.20L74.36 37.20L79 17.20ZM92.64 37.20L85.84 37.20L90.48 17.20L96.52 17.20L95.52 23.56L95.16 23Q96.00 20.00 98.12 18.40Q100.24 16.80 103.04 16.80L103.04 16.80Q105.20 16.80 106.66 17.74Q108.12 18.68 108.70 20.40Q109.28 22.12 108.72 24.56L108.72 24.56L105.76 37.20L98.96 37.20L101.72 25.40Q102.08 23.80 101.44 22.90Q100.80 22 99.36 22L99.36 22Q98.28 22 97.46 22.50Q96.64 23 96.06 23.98Q95.48 24.96 95.16 26.40L95.16 26.40L92.64 37.20ZM118.68 45.80Q116.88 45.80 115.22 45.36Q113.56 44.92 112.28 44Q111.00 43.08 110.24 41.70Q109.48 40.32 109.44 38.48L109.44 38.48L116.28 37.76Q116.36 39.44 117.02 40.42Q117.68 41.40 119.48 41.40L119.48 41.40Q120.48 41.40 121.30 40.96Q122.12 40.52 122.74 39.52Q123.36 38.52 123.72 36.80L123.72 36.80L125.20 30.40L125.56 30.40Q124.92 33.44 123.12 35.06Q121.32 36.68 118.64 36.68L118.64 36.68Q116.64 36.68 115.04 35.74Q113.44 34.80 112.52 33.02Q111.60 31.24 111.60 28.80L111.60 28.80Q111.60 26.40 112.30 24.26Q113.00 22.12 114.28 20.42Q115.56 18.72 117.36 17.76Q119.16 16.80 121.40 16.80L121.40 16.80Q122.96 16.80 124.30 17.48Q125.64 18.16 126.50 19.58Q127.36 21.00 127.32 23.20L127.32 23.20L126.52 24.20L128.12 17.20L134.92 17.20L130.52 36.24Q129.68 39.80 128.10 41.88Q126.52 43.96 124.16 44.88Q121.80 45.80 118.68 45.80ZM121.64 31.76Q122.96 31.76 123.94 30.84Q124.92 29.92 125.46 28.46Q126.00 27 126.00 25.36L126.00 25.36Q126.00 24.28 125.62 23.48Q125.24 22.68 124.54 22.24Q123.84 21.80 122.88 21.80L122.88 21.80Q121.44 21.80 120.42 22.74Q119.40 23.68 118.86 25.10Q118.32 26.52 118.32 28L118.32 28Q118.32 29.68 119.16 30.72Q120.00 31.76 121.64 31.76Z"/>
+          </g>
+        </svg>
+      </g>
+      <!-- "MTE" in bianco al posto del nero -->
+      <g transform="rotate(0 392.981 262.987)">
+        <svg y="236.587" viewBox="0.16 21.60 206.64 52.80" x="289.661" height="52.80" width="206.64" style="overflow:visible">
+          <g fill="#ffffff">
+            <path d="M14.56 74.40L0.16 74.40L12.40 21.60L32.72 21.60L34.80 44.64L35.28 57.92L35.36 57.92L41.84 44.64L53.92 21.60L76.96 21.60L64.72 74.40L50.40 74.40L55.28 53.28L59.04 37.20L58.96 37.20L38.72 74.40L26.32 74.40L22.48 37.60L22.32 37.60L19.44 53.28L14.56 74.40ZM95.52 21.60L145.44 21.60L142.64 33.84L125.84 33.84L116.48 74.40L100.16 74.40L109.52 33.84L92.64 33.84L95.52 21.60ZM195.20 74.40L151.76 74.40L164 21.60L206.80 21.60L204 33.84L177.52 33.84L175.52 42.40L196.40 42.40L193.84 53.76L172.96 53.76L171.04 62.16L198.08 62.16L195.20 74.40Z"/>
+          </g>
+        </svg>
+      </g>
+    </svg>
+    <span class="pro-badge" style="align-self:center">PRO</span>
+  </div>
+  <div class="header-right">
+    <div id="pro-status-badge" onclick="mostraStatoPro()" style="cursor:pointer"></div>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav-tabs">
+  <div class="nav-tab active" onclick="showPage('calcolo')">
+    <span class="tab-icon">⚙️</span>Calcolo
+  </div>
+  <div class="nav-tab" onclick="showPage('preset')">
+    <span class="tab-icon">💾</span>Preset<span class="pro-dot"></span>
+  </div>
+  <div class="nav-tab" onclick="showPage('storico')">
+    <span class="tab-icon">📋</span>Storico<span class="pro-dot"></span>
+  </div>
+  <div class="nav-tab" onclick="showPage('kz')">
+    <span class="tab-icon">📏</span>KZ Marce<span class="pro-dot"></span>
+  </div>
+  <div class="nav-tab" onclick="showPage('piste')">
+    <span class="tab-icon">🏁</span>Piste<span class="pro-dot"></span>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     PAGE: CALCOLO
+══════════════════════════════════════════ -->
+<div class="container">
+<div id="page-calcolo" class="page active">
+
+  <div class="section-label">Motore</div>
+  <div class="card">
+    <div class="preset-row">
+      <button class="preset-btn" onclick="setPreset(this,13000)">MINI<br><small>13.000</small></button>
+      <button class="preset-btn" onclick="setPreset(this,14000)">OKJ<br><small>14.000</small></button>
+      <button class="preset-btn" onclick="setPreset(this,15000)">OKN<br><small>15.000</small></button>
+      <button class="preset-btn" onclick="setPreset(this,16000)">OK<br><small>16.000</small></button>
+      <button class="preset-btn" onclick="setPreset(this,16000)">KZ<br><small>16.000</small></button>
+    </div>
+    <div>
+      <label>Giri massimi motore (RPM)</label>
+      <input type="number" id="rpm-motore" placeholder="13000" min="1000" oninput="clearPreset();aggiorna()">
+    </div>
+  </div>
+
+  <div class="section-label">Configurazione attuale</div>
+  <div class="card">
+    <div class="field-group">
+      <div>
+        <label>Corona (denti)</label>
+        <input type="number" id="corona" placeholder="80" min="1" oninput="aggiorna()">
+      </div>
+      <div>
+        <label>Pignone (denti)</label>
+        <input type="number" id="pignone" placeholder="11" min="1" oninput="aggiorna()">
+      </div>
+    </div>
+    <div>
+      <label>Velocità max registrata (km/h)</label>
+      <input type="number" id="velocita" placeholder="80" min="1" oninput="aggiorna()">
+    </div>
+    <div id="info-attuale" style="display:none">
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="ib-label">Rapporto</div>
+          <div class="ib-value" id="val-rapporto">—</div>
+        </div>
+        <div class="info-box">
+          <div class="ib-label">Vel. teorica</div>
+          <div class="ib-value" id="val-vel-teorica">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Rapporti da confrontare</div>
+  <div class="card">
+    <div class="add-row">
+      <div class="field-mini">
+        <label>Corona</label>
+        <input type="number" id="new-corona" placeholder="78" min="1">
+      </div>
+      <div class="field-mini">
+        <label>Pignone</label>
+        <input type="number" id="new-pignone" placeholder="11" min="1">
+      </div>
+      <button class="btn" onclick="aggiungiRapporto()">+ Aggiungi</button>
+    </div>
+    <div id="tabella-wrap" style="margin-top:14px;display:none">
+      <table class="rapporti-table">
+        <thead>
+          <tr>
+            <th>Corona/Pig.</th><th>Rapporto</th><th>Vel. max</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div id="empty-state" class="empty-state">
+      <span class="empty-icon">📊</span>
+      Aggiungi rapporti per confrontarli
+    </div>
+  </div>
+
+
+
+  <!-- SALVA SESSIONE (PRO) -->
+  <div style="position:relative; margin-bottom:16px;">
+    <div id="salva-lock" class="lock-overlay" style="border-radius:8px" onclick="showUpsell()">
+      <span class="lock-icon">🔒</span>
+      <span class="lock-text">FUNZIONE PRO</span>
+    </div>
+    <button class="btn btn-full" style="background:var(--surface);border:1px solid var(--border);color:var(--muted);width:100%;height:44px" onclick="openSalvaSessione()">
+      💾 Salva questa sessione nello storico
+    </button>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: PRESET SETUP
+══════════════════════════════════════════ -->
+<div id="page-preset" class="page">
+  <div id="preset-locked-banner" class="upsell-banner" style="display:none">
+    <div class="ub-title">⭐ KART RAPPORTI PRO</div>
+    <div class="ub-features">
+      💾 Salva i tuoi setup preferiti<br>
+      📋 Storico sessioni per pista<br>
+      📄 Export PDF e condivisione<br>
+      📏 Calcolo marce KZ<br>
+      🏁 Database piste italiane
+    </div>
+    <div class="ub-price">2,99€ <small>pagamento unico</small></div>
+    <button class="btn btn-gold btn-full" onclick="compilaRichiesta()">🔓 SBLOCCA PRO</button>
+  </div>
+
+  <div id="preset-content">
+    <div class="section-label">I tuoi setup</div>
+    <button class="btn btn-full" style="margin-bottom:14px" onclick="openNuovoPreset()">+ Nuovo preset</button>
+    <div id="preset-list">
+      <div class="empty-state"><span class="empty-icon">💾</span>Nessun preset salvato.<br>Salva la tua configurazione attuale!</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: STORICO SESSIONI
+══════════════════════════════════════════ -->
+<div id="page-storico" class="page">
+  <div id="storico-locked-banner" class="upsell-banner" style="display:none">
+    <div class="ub-title">⭐ KART RAPPORTI PRO</div>
+    <div class="ub-features">Sblocca lo storico sessioni e tutte le funzionalità Pro.</div>
+    <div class="ub-price">2,99€ <small>pagamento unico</small></div>
+    <button class="btn btn-gold btn-full" onclick="compilaRichiesta()">🔓 SBLOCCA PRO</button>
+  </div>
+  <div id="storico-content">
+    <div class="section-label">Storico sessioni</div>
+    <input class="search-bar" type="text" placeholder="🔍  Cerca per pista..." oninput="filtraStorico(this.value)">
+    <div id="storico-list">
+      <div class="empty-state"><span class="empty-icon">📋</span>Nessuna sessione registrata.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: KZ MARCE
+══════════════════════════════════════════ -->
+<div id="page-kz" class="page">
+  <div id="kz-locked-banner" class="upsell-banner" style="display:none">
+    <div class="ub-title">⭐ KART RAPPORTI PRO</div>
+    <div class="ub-features">Sblocca il calcolo velocità per ogni marcia KZ e tutte le funzionalità Pro.</div>
+    <div class="ub-price">2,99€ <small>pagamento unico</small></div>
+    <button class="btn btn-gold btn-full" onclick="compilaRichiesta()">🔓 SBLOCCA PRO</button>
+  </div>
+  <div id="kz-content">
+    <div class="section-label">Cambio KZ — Velocità per marcia</div>
+    <div class="card">
+      <div class="hint">Inserisci i rapporti del cambio KZ. I valori sono tipici per un cambio a 6 marce — modifica secondo il tuo motore.</div>
+      <div class="field-group">
+        <div>
+          <label>Corona finale (denti)</label>
+          <input type="number" id="kz-corona" placeholder="11" min="1" oninput="calcKZ()">
+        </div>
+        <div>
+          <label>Pignone finale (denti)</label>
+          <input type="number" id="kz-pignone" placeholder="72" min="1" oninput="calcKZ()">
+        </div>
+      </div>
+      <div>
+        <label>Vel. max misurata in top (km/h)</label>
+        <input type="number" id="kz-vmax" placeholder="135" min="1" oninput="calcKZ()">
+      </div>
+    </div>
+
+    <div class="section-label">Rapporti interni cambio</div>
+    <div class="card">
+      <div id="kz-marce-inputs">
+        <!-- generato da JS -->
+      </div>
+    </div>
+
+    <div class="section-label">Velocità per marcia</div>
+    <div class="card" id="kz-risultati">
+      <div class="empty-state">Inserisci i dati sopra per calcolare</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: DATABASE PISTE
+══════════════════════════════════════════ -->
+<div id="page-piste" class="page">
+  <div id="piste-locked-banner" class="upsell-banner" style="display:none">
+    <div class="ub-title">⭐ KART RAPPORTI PRO</div>
+    <div class="ub-features">Sblocca il database piste con rapporti consigliati e tutte le funzionalità Pro.</div>
+    <div class="ub-price">2,99€ <small>pagamento unico</small></div>
+    <button class="btn btn-gold btn-full" onclick="compilaRichiesta()">🔓 SBLOCCA PRO</button>
+  </div>
+  <div id="piste-content">
+    <div class="section-label">Database piste</div>
+    <input class="search-bar" type="text" placeholder="🔍  Cerca pista..." oninput="filtraPiste(this.value)" id="piste-search">
+    <div class="chip-row" id="chip-categoria">
+      <div class="chip active" onclick="filtraCategoria(this,'')">Tutte</div>
+      <div class="chip" onclick="filtraCategoria(this,'MINI')">MINI</div>
+      <div class="chip" onclick="filtraCategoria(this,'OKJ')">OKJ</div>
+      <div class="chip" onclick="filtraCategoria(this,'OKN')">OKN</div>
+      <div class="chip" onclick="filtraCategoria(this,'OK')">OK</div>
+      <div class="chip" onclick="filtraCategoria(this,'KZ')">KZ</div>
+    </div>
+    <div id="piste-list"></div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- ══ MODAL: SALVA PRESET ══ -->
+<div class="modal-overlay" id="modal-preset">
+  <div class="modal">
+    <div class="modal-title">
+      Salva preset
+      <button class="modal-close" onclick="closeModal('modal-preset')">✕</button>
+    </div>
+    <div class="field-group single" style="margin-bottom:10px">
+      <div>
+        <label>Nome preset (es. "Gara Lonato")</label>
+        <input type="text" id="preset-nome" placeholder="Il mio setup">
+      </div>
+    </div>
+    <div class="field-group" style="margin-bottom:10px">
+      <div><label>Corona</label><input type="number" id="ps-corona" placeholder="80"></div>
+      <div><label>Pignone</label><input type="number" id="ps-pignone" placeholder="11"></div>
+    </div>
+    <div class="field-group" style="margin-bottom:10px">
+      <div><label>RPM motore</label><input type="number" id="ps-rpm" placeholder="13000"></div>
+      <div><label>Vel. max (km/h)</label><input type="number" id="ps-vel" placeholder="80"></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label>Note</label>
+      <textarea id="ps-note" placeholder="Condizioni pista, temperatura, ecc."></textarea>
+    </div>
+    <button class="btn btn-full btn-gold" onclick="salvaPreset()">💾 Salva preset</button>
+  </div>
+</div>
+
+<!-- ══ MODAL: SALVA SESSIONE ══ -->
+<div class="modal-overlay" id="modal-sessione">
+  <div class="modal">
+    <div class="modal-title">
+      Salva sessione
+      <button class="modal-close" onclick="closeModal('modal-sessione')">✕</button>
+    </div>
+    <div class="field-group single" style="margin-bottom:10px">
+      <div>
+        <label>Pista</label>
+        <input type="text" id="sess-pista" placeholder="es. Circuito Internazionale Napoli">
+      </div>
+    </div>
+    <div class="field-group" style="margin-bottom:10px">
+      <div><label>Data</label><input type="text" id="sess-data" placeholder="gg/mm/aaaa"></div>
+      <div><label>Condizioni</label>
+        <select id="sess-condizioni">
+          <option>☀️ Asciutto</option>
+          <option>🌧️ Bagnato</option>
+          <option>⛅ Variabile</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label>Note sessione</label>
+      <textarea id="sess-note" placeholder="Come si comportava il kart, cosa cambierei..."></textarea>
+    </div>
+    <button class="btn btn-full btn-gold" onclick="salvaSessione()">📋 Salva sessione</button>
+  </div>
+</div>
+
+<!-- ══ MODAL: UPSELL + CODICE ══ -->
+<div class="modal-overlay" id="modal-upsell">
+  <div class="modal">
+    <div class="modal-title">
+      Sblocca PRO
+      <button class="modal-close" onclick="closeModal('modal-upsell')">✕</button>
+    </div>
+    <div class="upsell-banner" style="margin-bottom:16px">
+      <div class="ub-title">⭐ KART RAPPORTI PRO</div>
+      <div class="ub-features">
+        💾 Salva setup e preset illimitati<br>
+        📋 Storico sessioni per pista<br>
+        📏 Calcolo velocità marce KZ<br>
+        🏁 Database piste con rapporti consigliati
+      </div>
+      <div class="ub-price">2,99€ <small>pagamento unico — nessun abbonamento</small></div>
+      <button class="btn btn-gold btn-full" onclick="compilaRichiesta()">📲 COMPILA LA RICHIESTA</button>
+    </div>
+
+    <div style="border-top:1px solid var(--border);padding-top:16px">
+      <p class="hint" style="margin-bottom:10px">Hai già acquistato? Inserisci il codice che hai ricevuto per sbloccare il PRO.</p>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="codice-input" placeholder="es. KART-XXXX-XXXX" style="flex:1;text-transform:uppercase;letter-spacing:2px;font-size:16px">
+        <button class="btn" onclick="attivaCodice()">✓ Attiva</button>
+      </div>
+      <div id="codice-msg" style="margin-top:8px;font-size:12px;display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: STATO PRO ══ -->
+<div class="modal-overlay" id="modal-stato-pro">
+  <div class="modal">
+    <div class="modal-title">
+      Il tuo account
+      <button class="modal-close" onclick="closeModal('modal-stato-pro')">✕</button>
+    </div>
+    <div id="stato-pro-content"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// STATO APP
+// ══════════════════════════════════════
+
+// Storage sicuro — funziona sia su sito reale che in anteprima
+const store = (() => {
+  const mem = {};
+  return {
+    get(k) { try { return localStorage.getItem(k); } catch(e) { return mem[k] ?? null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch(e) { mem[k] = v; } },
+    remove(k) { try { localStorage.removeItem(k); } catch(e) { delete mem[k]; } },
+  };
+})();
+
+// Codici validi — aggiungine quanti vuoi, mandali ai clienti dopo il pagamento
+const CODICI_VALIDI = [
+  'KART-2024-PRO1',
+  'KART-2024-PRO2',
+  'KART-2024-PRO3',
+  'KART-GARA-0001',
+  'KART-GARA-0002',
+  'KART-GARA-0003',
+  'KART-GARA-0004',
+  'KART-GARA-0005',
+];
+
+let isPro = store.get('kartpro_attivo') === '1';
+let righe = [];
+let presets = JSON.parse(store.get('kartpro_presets') || '[]');
+let sessioni = JSON.parse(store.get('kartpro_sessioni') || '[]');
+let filtroCategoria = '';
+
+// KZ marce default (rapporti interni tipici cambio Maxter/IAME)
+let kzMarce = [
+  { label: '1ª', ratio: 2.615 },
+  { label: '2ª', ratio: 1.882 },
+  { label: '3ª', ratio: 1.450 },
+  { label: '4ª', ratio: 1.190 },
+  { label: '5ª', ratio: 1.043 },
+  { label: '6ª', ratio: 0.931 },
+];
+
+// Database piste
+const pisteDB = [
+  { nome: 'South Garda Karting', loc: 'Lonato (BS)', categorie: ['OKJ','OK','KZ'], corona: { MINI:null, OKJ:79, OK:11, KZ:11 }, pignone: { OKJ:11, OK:79, KZ:72 }, vmax: { OKJ:118, OK:130, KZ:143 }, lung: 1400 },
+  { nome: 'Circuito Internazionale Napoli', loc: 'Sarno (SA)', categorie: ['OKJ','OK','KZ','MINI'], corona: { MINI:82, OKJ:81, OK:80, KZ:72 }, pignone: { MINI:11, OKJ:11, OK:11, KZ:11 }, vmax: { MINI:85, OKJ:110, OK:125, KZ:138 }, lung: 1200 },
+  { nome: 'Adria Karting Raceway', loc: 'Adria (RO)', categorie: ['OKJ','OK','KZ'], corona: { OKJ:78, OK:78, KZ:70 }, pignone: { OKJ:11, OK:11, KZ:11 }, vmax: { OKJ:122, OK:135, KZ:150 }, lung: 1302 },
+  { nome: 'Cremona Circuit Karting', loc: 'Cremona (CR)', categorie: ['MINI','OKJ','OKN'], corona: { MINI:84, OKJ:82, OKN:80 }, pignone: { MINI:11, OKJ:11, OKN:11 }, vmax: { MINI:80, OKJ:108, OKN:115 }, lung: 900 },
+  { nome: 'PFI Circuit', loc: 'Grantham (UK)', categorie: ['OKJ','OK','KZ'], corona: { OKJ:80, OK:79, KZ:73 }, pignone: { OKJ:11, OK:11, KZ:11 }, vmax: { OKJ:115, OK:128, KZ:142 }, lung: 1048 },
+  { nome: 'Circuito di Jesolo', loc: 'Jesolo (VE)', categorie: ['MINI','OKJ'], corona: { MINI:83, OKJ:80 }, pignone: { MINI:11, OKJ:11 }, vmax: { MINI:78, OKJ:105 }, lung: 950 },
+  { nome: 'Varano de\' Melegari', loc: 'Varano (PR)', categorie: ['OKN','OK'], corona: { OKN:79, OK:77 }, pignone: { OKN:11, OK:11 }, vmax: { OKN:118, OK:130 }, lung: 1030 },
+  { nome: 'WSK La Conca', loc: 'Muro Leccese (LE)', categorie: ['MINI','OKJ','OK','KZ'], corona: { MINI:80, OKJ:78, OK:76, KZ:70 }, pignone: { MINI:11, OKJ:11, OK:11, KZ:11 }, vmax: { MINI:88, OKJ:118, OK:132, KZ:148 }, lung: 1400 },
+];
+
+// ══════════════════════════════════════
+// NAV
+// ══════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const idx = ['calcolo','preset','storico','kz','piste'].indexOf(name);
+  if (idx >= 0) tabs[idx].classList.add('active');
+
+  if (name === 'preset') renderPresets();
+  if (name === 'storico') renderStorico();
+  if (name === 'kz') { initKZInputs(); calcKZ(); updateProLocks(); }
+  if (name === 'piste') renderPiste();
+  updateProLocks();
+}
+
+// ══════════════════════════════════════
+// PRO TOGGLE
+// ══════════════════════════════════════
+function aggiornaBadgePro() {
+  const badge = document.getElementById('pro-status-badge');
+  if (isPro) {
+    badge.innerHTML = '<span style="background:linear-gradient(135deg,#f0c040,#e0a020);color:#111;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:11px;letter-spacing:2px;padding:4px 10px;border-radius:4px">⭐ PRO</span>';
+  } else {
+    badge.innerHTML = '<span style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:11px;font-weight:700;padding:4px 10px;border-radius:4px;letter-spacing:1px">🔒 FREE</span>';
+  }
+}
+
+function mostraStatoPro() {
+  const el = document.getElementById('stato-pro-content');
+  if (isPro) {
+    const codice = store.get('kartpro_codice') || '—';
+    el.innerHTML = `
+      <div style="text-align:center;padding:16px 0">
+        <div style="font-size:48px;margin-bottom:8px">⭐</div>
+        <div style="font-family:Barlow Condensed,sans-serif;font-size:22px;font-weight:900;color:var(--gold)">VERSIONE PRO ATTIVA</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">Codice: ${codice}</div>
+      </div>
+      <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="disattivaPro()">Disattiva PRO (richiede nuovo codice)</button>`;
+  } else {
+    el.innerHTML = `
+      <div style="text-align:center;padding:12px 0 16px">
+        <div style="font-size:36px;margin-bottom:6px">🔒</div>
+        <div style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:700;color:var(--muted)">Versione FREE</div>
+      </div>
+      <button class="btn btn-gold btn-full" onclick="closeModal('modal-stato-pro');showUpsell()">⭐ Sblocca PRO — 2,99€</button>`;
+  }
+  openModal('modal-stato-pro');
+}
+
+function attivaCodice() {
+  const input = document.getElementById('codice-input');
+  const msg = document.getElementById('codice-msg');
+  const codice = input.value.trim().toUpperCase();
+
+  if (!codice) { mostraMsg(msg, '⚠️ Inserisci un codice.', 'var(--accent2)'); return; }
+
+  // Controlla se già usato
+  const usati = JSON.parse(store.get('kartpro_usati') || '[]');
+  if (usati.includes(codice)) {
+    mostraMsg(msg, '⚠️ Questo codice è già stato usato su questo dispositivo.', 'var(--accent)');
+    return;
+  }
+
+  if (CODICI_VALIDI.includes(codice)) {
+    // Attiva PRO
+    isPro = true;
+    store.set('kartpro_attivo', '1');
+    store.set('kartpro_codice', codice);
+    usati.push(codice);
+    store.set('kartpro_usati', JSON.stringify(usati));
+    input.value = '';
+    closeModal('modal-upsell');
+    updateProLocks();
+    aggiornaBadgePro();
+    setTimeout(() => alert('🎉 PRO attivato! Benvenuto nella versione completa.'), 200);
+  } else {
+    mostraMsg(msg, '❌ Codice non valido. Controlla di averlo inserito correttamente.', 'var(--red)');
+  }
+}
+
+function mostraMsg(el, testo, colore) {
+  el.textContent = testo;
+  el.style.color = colore;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3500);
+}
+
+function disattivaPro() {
+  if (!confirm('Disattivare il PRO? Dovrai inserire un nuovo codice per riattivarlo.')) return;
+  isPro = false;
+  store.remove('kartpro_attivo');
+  store.remove('kartpro_codice');
+  updateProLocks();
+  aggiornaBadgePro();
+  closeModal('modal-stato-pro');
+}
+
+function compilaRichiesta() {
+  closeModal('modal-upsell');
+  document.getElementById('req-nome').value = '';
+  document.getElementById('req-telefono').value = '';
+  document.getElementById('req-note').value = '';
+  openModal('modal-richiesta');
+}
+
+function inviaRichiesta() {
+  const nome = document.getElementById('req-nome').value.trim();
+  const tel = document.getElementById('req-telefono').value.trim();
+  if (!nome) { alert('Inserisci il tuo nome.'); return; }
+  if (!tel) { alert('Inserisci il tuo numero WhatsApp.'); return; }
+  const note = document.getElementById('req-note').value.trim();
+  const testo = `Ciao! Vorrei acquistare *Kart Rapporti PRO* 🏎️\n\n👤 Nome: ${nome}\n📱 Contatto: ${tel}${note ? `\n📝 Note: ${note}` : ''}\n\nAttendo il link per il pagamento. Grazie!`;
+  const url = `https://wa.me/393203805180?text=${encodeURIComponent(testo)}`;
+  window.open(url, '_blank');
+  closeModal('modal-richiesta');
+}
+
+function showUpsell() {
+  if (!isPro) {
+    document.getElementById('codice-input').value = '';
+    document.getElementById('codice-msg').style.display = 'none';
+    openModal('modal-upsell');
+  }
+}
+
+function updateProLocks() {
+  const locks = ['salva-lock'];
+  locks.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isPro ? 'none' : 'flex';
+  });
+  ['preset','storico','kz','piste'].forEach(name => {
+    const banner = document.getElementById(name + '-locked-banner');
+    const content = document.getElementById(name + '-content');
+    if (banner) banner.style.display = isPro ? 'none' : 'block';
+    if (content) content.style.display = isPro ? 'block' : 'none';
+  });
+}
+
+function setPreset(btn, rpm) {
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('rpm-motore').value = rpm;
+  aggiorna();
+}
+function clearPreset() {
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+}
+
+function getAttuale() {
+  return {
+    corona: parseFloat(document.getElementById('corona').value) || 0,
+    pignone: parseFloat(document.getElementById('pignone').value) || 0,
+    velocita: parseFloat(document.getElementById('velocita').value) || 0,
+    rpm: parseFloat(document.getElementById('rpm-motore').value) || 0,
+  };
+}
+
+function getK(a) {
+  if (!a.velocita || !a.rpm || !a.corona || !a.pignone) return null;
+  const r = a.corona / a.pignone;
+  return (a.velocita * r) / a.rpm;
+}
+
+function aggiorna() {
+  const a = getAttuale();
+  const wrap = document.getElementById('info-attuale');
+  if (a.corona > 0 && a.pignone > 0) {
+    const r = a.corona / a.pignone;
+    document.getElementById('val-rapporto').textContent = r.toFixed(3);
+    const k = getK(a);
+    if (k && a.rpm > 0) {
+      const vTeor = (a.rpm * k) / r;
+      document.getElementById('val-vel-teorica').textContent = vTeor.toFixed(1) + ' km/h';
+    } else {
+      document.getElementById('val-vel-teorica').textContent = '—';
+    }
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+  renderTabella();
+}
+
+function calcVelocita(cn, pn) {
+  const a = getAttuale();
+  const k = getK(a);
+  if (k && a.rpm > 0) {
+    const r2 = cn / pn;
+    return (a.rpm * k) / r2;
+  }
+  if (a.velocita > 0 && a.corona > 0 && a.pignone > 0) {
+    const r1 = a.corona / a.pignone;
+    const r2 = cn / pn;
+    return a.velocita * (r2 / r1);
+  }
+  return null;
+}
+
+function aggiungiRapporto() {
+  const c = parseFloat(document.getElementById('new-corona').value);
+  const p = parseFloat(document.getElementById('new-pignone').value);
+  if (!c || !p || c <= 0 || p <= 0) { alert('Inserisci corona e pignone validi.'); return; }
+  if (righe.find(r => r.corona === c && r.pignone === p)) { alert('Rapporto già presente.'); return; }
+  righe.push({ corona: c, pignone: p, id: Date.now() });
+  document.getElementById('new-corona').value = '';
+  document.getElementById('new-pignone').value = '';
+  renderTabella();
+}
+
+function rimuovi(id) {
+  righe = righe.filter(r => r.id !== id);
+  renderTabella();
+}
+
+function renderTabella() {
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('empty-state');
+  const wrap = document.getElementById('tabella-wrap');
+  const a = getAttuale();
+
+  const tutteLe = [];
+  if (a.corona > 0 && a.pignone > 0)
+    tutteLe.push({ corona: a.corona, pignone: a.pignone, attuale: true, id: 'base' });
+  righe.forEach(r => tutteLe.push({ ...r, attuale: false }));
+
+  if (tutteLe.length === 0 || righe.length === 0) {
+    wrap.style.display = 'none'; empty.style.display = 'block'; return;
+  }
+  wrap.style.display = 'block'; empty.style.display = 'none';
+
+  tbody.innerHTML = '';
+  tutteLe.forEach(row => {
+    const r = row.corona / row.pignone;
+    let velHtml = '—';
+    if (row.attuale) {
+      velHtml = a.velocita > 0
+        ? `<span class="vel-same">${a.velocita.toFixed(1)}</span>`
+        : '<span style="color:var(--muted);font-size:12px">—</span>';
+    } else {
+      const v = calcVelocita(row.corona, row.pignone);
+      if (v !== null) {
+        const diff = a.velocita > 0 ? v - a.velocita : 0;
+        const cls = diff > 0.5 ? 'vel-higher' : diff < -0.5 ? 'vel-lower' : 'vel-same';
+        const arrow = diff > 0.5 ? '▲' : diff < -0.5 ? '▼' : '●';
+        velHtml = `<span class="${cls}"><span class="diff-arrow">${arrow}</span>${v.toFixed(1)}</span>`;
+      }
+    }
+    const badge = row.attuale ? '<span class="badge-attuale">ATT.</span>' : '';
+    const delBtn = !row.attuale
+      ? `<button class="delete-btn" onclick="rimuovi(${row.id})">✕</button>` : '';
+    const tr = document.createElement('tr');
+    if (row.attuale) tr.className = 'attuale';
+    tr.innerHTML = `
+      <td>${row.corona}/${row.pignone}${badge}</td>
+      <td>${r.toFixed(3)}</td>
+      <td class="vel-cell">${velHtml} <small style="font-size:11px;color:var(--muted)">km/h</small></td>
+      <td>${delBtn}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ══════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════
+function exportTesto() {
+  const a = getAttuale();
+  if (!a.corona || !a.pignone) { alert('Inserisci prima la configurazione attuale.'); return; }
+  let testo = `🏎️ KART RAPPORTI PRO\n`;
+  testo += `━━━━━━━━━━━━━━━━━━━━\n`;
+  testo += `Motore: ${a.rpm > 0 ? a.rpm.toLocaleString('it') + ' RPM' : '—'}\n`;
+  testo += `Rapporto attuale: ${a.corona}/${a.pignone} = ${(a.corona/a.pignone).toFixed(3)}\n`;
+  testo += `Velocità max: ${a.velocita > 0 ? a.velocita + ' km/h' : '—'}\n\n`;
+  if (righe.length > 0) {
+    testo += `CONFRONTO RAPPORTI:\n`;
+    righe.forEach(row => {
+      const v = calcVelocita(row.corona, row.pignone);
+      testo += `• ${row.corona}/${row.pignone} → ${v ? v.toFixed(1) + ' km/h' : '—'}\n`;
+    });
+  }
+  testo += `\nGenerato con Kart Rapporti PRO`;
+  if (navigator.share) {
+    navigator.share({ title: 'Kart Rapporti', text: testo });
+  } else {
+    navigator.clipboard.writeText(testo).then(() => alert('Testo copiato negli appunti!'));
+  }
+}
+
+function exportPDF() {
+  const a = getAttuale();
+  // Crea una finestra di stampa semplice
+  const win = window.open('', '_blank');
+  let rows = '';
+  const tutteLe = [];
+  if (a.corona > 0 && a.pignone > 0)
+    tutteLe.push({ corona: a.corona, pignone: a.pignone, attuale: true });
+  righe.forEach(r => tutteLe.push({ ...r, attuale: false }));
+
+  tutteLe.forEach(row => {
+    const r = (row.corona / row.pignone).toFixed(3);
+    const v = row.attuale ? (a.velocita || '—') : (calcVelocita(row.corona, row.pignone) || {toFixed:()=>'—'});
+    const vStr = row.attuale ? (a.velocita ? a.velocita + ' km/h' : '—') : (calcVelocita(row.corona, row.pignone) ? calcVelocita(row.corona, row.pignone).toFixed(1) + ' km/h' : '—');
+    rows += `<tr${row.attuale ? ' style="background:#fff3f0"':''}><td>${row.corona}/${row.pignone}${row.attuale?' (ATT.)':''}</td><td>${r}</td><td>${vStr}</td></tr>`;
+  });
+
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kart Rapporti PRO</title>
+  <style>body{font-family:Arial,sans-serif;padding:30px;color:#111}h1{color:#e83a1e;font-size:22px;margin-bottom:4px}.sub{color:#888;font-size:12px;margin-bottom:20px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#e83a1e;color:white;padding:8px 12px;text-align:left;font-size:12px}td{padding:8px 12px;border-bottom:1px solid #eee;font-size:14px}.info{background:#f5f5f5;padding:12px;border-radius:6px;margin-bottom:16px;font-size:13px}</style>
+  </head><body>
+  <h1>🏎️ KART RAPPORTI PRO</h1>
+  <div class="sub">Generato il ${new Date().toLocaleDateString('it')}</div>
+  <div class="info">
+    <b>Motore:</b> ${a.rpm > 0 ? a.rpm.toLocaleString('it') + ' RPM' : '—'} &nbsp;|&nbsp;
+    <b>Rapporto attuale:</b> ${a.corona > 0 ? a.corona + '/' + a.pignone : '—'} &nbsp;|&nbsp;
+    <b>Vel. max:</b> ${a.velocita > 0 ? a.velocita + ' km/h' : '—'}
+  </div>
+  <table><thead><tr><th>Corona / Pignone</th><th>Rapporto</th><th>Vel. max</th></tr></thead>
+  <tbody>${rows}</tbody></table>
+  <script>window.print();<\/script></body></html>`);
+  win.document.close();
+}
+
+// ══════════════════════════════════════
+// PRESET SETUP (PRO)
+// ══════════════════════════════════════
+function openNuovoPreset() {
+  if (!isPro) { showUpsell(); return; }
+  const a = getAttuale();
+  document.getElementById('preset-nome').value = '';
+  document.getElementById('ps-corona').value = a.corona || '';
+  document.getElementById('ps-pignone').value = a.pignone || '';
+  document.getElementById('ps-rpm').value = a.rpm || '';
+  document.getElementById('ps-vel').value = a.velocita || '';
+  document.getElementById('ps-note').value = '';
+  openModal('modal-preset');
+}
+
+function salvaPreset() {
+  const nome = document.getElementById('preset-nome').value.trim();
+  if (!nome) { alert('Inserisci un nome per il preset.'); return; }
+  const p = {
+    id: Date.now(),
+    nome,
+    corona: document.getElementById('ps-corona').value,
+    pignone: document.getElementById('ps-pignone').value,
+    rpm: document.getElementById('ps-rpm').value,
+    vel: document.getElementById('ps-vel').value,
+    note: document.getElementById('ps-note').value,
+    data: new Date().toLocaleDateString('it'),
+  };
+  presets.unshift(p);
+  store.set('kartpro_presets', JSON.stringify(presets));
+  closeModal('modal-preset');
+  renderPresets();
+}
+
+function renderPresets() {
+  const list = document.getElementById('preset-list');
+  if (presets.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="empty-icon">💾</span>Nessun preset salvato.<br>Salva la tua configurazione attuale!</div>';
+    return;
+  }
+  list.innerHTML = presets.map(p => `
+    <div class="setup-card">
+      <div onclick="caricaPreset(${p.id})" style="flex:1">
+        <div class="sc-name">${p.nome}</div>
+        <div class="sc-detail">Corona ${p.corona || '—'} / Pignone ${p.pignone || '—'} • ${p.rpm ? p.rpm + ' RPM' : '—'} • ${p.vel ? p.vel + ' km/h' : '—'}</div>
+        ${p.note ? `<div class="sc-detail" style="margin-top:3px;font-style:italic">${p.note}</div>` : ''}
+      </div>
+      <div class="sc-actions">
+        <button class="btn btn-ghost" style="height:34px;font-size:11px" onclick="caricaPreset(${p.id})">▶ Carica</button>
+        <button class="delete-btn" onclick="eliminaPreset(${p.id})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function caricaPreset(id) {
+  const p = presets.find(x => x.id === id);
+  if (!p) return;
+  if (p.corona) document.getElementById('corona').value = p.corona;
+  if (p.pignone) document.getElementById('pignone').value = p.pignone;
+  if (p.rpm) document.getElementById('rpm-motore').value = p.rpm;
+  if (p.vel) document.getElementById('velocita').value = p.vel;
+  aggiorna();
+  showPage('calcolo');
+}
+
+function eliminaPreset(id) {
+  if (!confirm('Eliminare il preset?')) return;
+  presets = presets.filter(p => p.id !== id);
+  store.set('kartpro_presets', JSON.stringify(presets));
+  renderPresets();
+}
+
+// ══════════════════════════════════════
+// STORICO SESSIONI (PRO)
+// ══════════════════════════════════════
+function openSalvaSessione() {
+  if (!isPro) { showUpsell(); return; }
+  document.getElementById('sess-pista').value = '';
+  document.getElementById('sess-data').value = new Date().toLocaleDateString('it');
+  document.getElementById('sess-note').value = '';
+  openModal('modal-sessione');
+}
+
+function salvaSessione() {
+  const pista = document.getElementById('sess-pista').value.trim();
+  if (!pista) { alert('Inserisci il nome della pista.'); return; }
+  const a = getAttuale();
+  const s = {
+    id: Date.now(),
+    pista,
+    data: document.getElementById('sess-data').value,
+    condizioni: document.getElementById('sess-condizioni').value,
+    note: document.getElementById('sess-note').value,
+    corona: a.corona, pignone: a.pignone,
+    rpm: a.rpm, vel: a.velocita,
+    rapporti: [...righe],
+  };
+  sessioni.unshift(s);
+  store.set('kartpro_sessioni', JSON.stringify(sessioni));
+  closeModal('modal-sessione');
+  renderStorico();
+  alert('Sessione salvata!');
+}
+
+function filtraStorico(q) {
+  renderStorico(q);
+}
+
+function renderStorico(filtro = '') {
+  const list = document.getElementById('storico-list');
+  const items = sessioni.filter(s =>
+    !filtro || s.pista.toLowerCase().includes(filtro.toLowerCase())
+  );
+  if (items.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="empty-icon">📋</span>Nessuna sessione trovata.</div>';
+    return;
+  }
+  list.innerHTML = items.map(s => `
+    <div class="sessione-card">
+      <div class="sc-header">
+        <div>
+          <div class="sc-pista">${s.pista}</div>
+          <div class="sc-data">${s.data} • ${s.condizioni}</div>
+        </div>
+        <button class="delete-btn" onclick="eliminaSessione(${s.id})">✕</button>
+      </div>
+      <div class="sc-tags">
+        ${s.corona ? `<span class="sc-tag highlight">Corona ${s.corona} / Pig. ${s.pignone}</span>` : ''}
+        ${s.rpm ? `<span class="sc-tag">${parseInt(s.rpm).toLocaleString('it')} RPM</span>` : ''}
+        ${s.vel ? `<span class="sc-tag highlight">V-max ${s.vel} km/h</span>` : ''}
+        ${s.rapporti && s.rapporti.length > 0 ? `<span class="sc-tag">${s.rapporti.length} rapporti testati</span>` : ''}
+      </div>
+      ${s.note ? `<div class="sc-note">"${s.note}"</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function eliminaSessione(id) {
+  if (!confirm('Eliminare questa sessione?')) return;
+  sessioni = sessioni.filter(s => s.id !== id);
+  store.set('kartpro_sessioni', JSON.stringify(sessioni));
+  renderStorico();
+}
+
+// ══════════════════════════════════════
+// KZ MARCE (PRO)
+// ══════════════════════════════════════
+function initKZInputs() {
+  const wrap = document.getElementById('kz-marce-inputs');
+  if (wrap.innerHTML !== '') return;
+  wrap.innerHTML = kzMarce.map((m, i) => `
+    <div class="field-group" style="margin-bottom:8px">
+      <div>
+        <label>${m.label} marcia — rapporto interno</label>
+        <input type="number" id="kz-m${i}" value="${m.ratio}" step="0.001" min="0.1" oninput="calcKZ()">
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <div class="info-box" style="width:100%;margin-bottom:0">
+          <div class="ib-label">Vel. ${m.label}</div>
+          <div class="ib-value" id="kz-v${i}" style="font-size:18px">—</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function calcKZ() {
+  const corona = parseFloat(document.getElementById('kz-corona').value) || 0;
+  const pignone = parseFloat(document.getElementById('kz-pignone').value) || 0;
+  const vmax = parseFloat(document.getElementById('kz-vmax').value) || 0;
+
+  if (!corona || !pignone || !vmax) return;
+
+  // Rapporto finale
+  const rFinale = corona / pignone;
+  // La velocità in top gear (6ª) è vmax
+  // Leggiamo il rapporto di 6ª per calcolare la costante
+  const r6 = parseFloat(document.getElementById('kz-m5')?.value) || kzMarce[5].ratio;
+  // velocità = vmax * (r6 / rx) * (rFinale6 / rFinaleX) — ma il rapporto finale è lo stesso
+  // Quindi: v_marcia = vmax * (r6 / r_marcia)
+  // (assumendo lo stesso rapporto finale corona/pignone per tutte le marce)
+
+  for (let i = 0; i < 6; i++) {
+    const ri = parseFloat(document.getElementById(`kz-m${i}`)?.value) || kzMarce[i].ratio;
+    const v = vmax * (r6 / ri);
+    const el = document.getElementById(`kz-v${i}`);
+    if (el) el.textContent = v.toFixed(1) + ' km/h';
+  }
+}
+
+// ══════════════════════════════════════
+// DATABASE PISTE (PRO)
+// ══════════════════════════════════════
+function filtraPiste(q) { renderPiste(q, filtroCategoria); }
+function filtraCategoria(el, cat) {
+  document.querySelectorAll('#chip-categoria .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filtroCategoria = cat;
+  renderPiste(document.getElementById('piste-search')?.value || '', cat);
+}
+
+function renderPiste(q = '', cat = '') {
+  const list = document.getElementById('piste-list');
+  const items = pisteDB.filter(p => {
+    const matchQ = !q || p.nome.toLowerCase().includes(q.toLowerCase()) || p.loc.toLowerCase().includes(q.toLowerCase());
+    const matchCat = !cat || p.categorie.includes(cat);
+    return matchQ && matchCat;
+  });
+
+  if (items.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="empty-icon">🏁</span>Nessuna pista trovata.</div>';
+    return;
+  }
+
+  list.innerHTML = items.map(p => {
+    const catTag = cat || 'OKJ';
+    const c = p.corona[catTag];
+    const pg = p.pignone[catTag];
+    const v = p.vmax[catTag];
+    const cats = p.categorie.map(c => `<span class="sc-tag">${c}</span>`).join('');
+    return `
+    <div class="pista-card">
+      <div class="pc-header">
+        <div>
+          <div class="pc-nome">${p.nome}</div>
+          <div class="pc-loc">📍 ${p.loc} • ${p.lung}m</div>
+        </div>
+      </div>
+      <div class="pc-grid">
+        <div class="pc-box">
+          <div class="pcb-label">Corona</div>
+          <div class="pcb-val">${c || '—'}</div>
+        </div>
+        <div class="pc-box">
+          <div class="pcb-label">Pignone</div>
+          <div class="pcb-val">${pg || '—'}</div>
+        </div>
+        <div class="pc-box">
+          <div class="pcb-label">V-max est.</div>
+          <div class="pcb-val">${v ? v + ' km/h' : '—'}</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap">${cats}</div>
+      ${c && pg ? `<button class="carica-btn" onclick="caricaDaPista('${p.nome}',${c},${pg})">▶ Usa questo rapporto nel calcolo</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function caricaDaPista(nome, corona, pignone) {
+  document.getElementById('corona').value = corona;
+  document.getElementById('pignone').value = pignone;
+  aggiorna();
+  showPage('calcolo');
+}
+
+// ══════════════════════════════════════
+// MODAL HELPERS
+// ══════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Chiudi modal cliccando fuori
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+updateProLocks();
+aggiornaBadgePro();
+renderPiste();
+</script>
+
+<!-- ══ MODAL: RICHIESTA PRO ══ -->
+<div class="modal-overlay" id="modal-richiesta">
+  <div class="modal">
+    <div class="modal-title">
+      Richiedi il codice PRO
+      <button class="modal-close" onclick="closeModal('modal-richiesta')">✕</button>
+    </div>
+    <p class="hint" style="margin-bottom:16px;font-size:13px;line-height:1.6">
+      Compila il form — ti invieremo su WhatsApp il link per il pagamento e poi il codice di sblocco.
+    </p>
+    <div style="margin-bottom:12px">
+      <label>Il tuo nome *</label>
+      <input type="text" id="req-nome" placeholder="es. Marco Rossi">
+    </div>
+    <div style="margin-bottom:12px">
+      <label>Il tuo numero WhatsApp *</label>
+      <input type="text" id="req-telefono" placeholder="es. 333 1234567">
+    </div>
+    <div style="margin-bottom:16px">
+      <label>Note (opzionale)</label>
+      <textarea id="req-note" placeholder="Es. categoria che usi, tipo di kart..."></textarea>
+    </div>
+    <button class="btn btn-gold btn-full" onclick="inviaRichiesta()">
+      📲 Invia richiesta su WhatsApp
+    </button>
+    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px">
+      Si aprirà WhatsApp con il messaggio già compilato
+    </p>
+  </div>
+</div>
+
+</body>
+</html>
