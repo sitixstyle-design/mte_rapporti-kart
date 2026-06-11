@@ -515,7 +515,39 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 }
 .chip.active { background: rgba(232,58,30,0.15); border-color: var(--accent); color: var(--text); }
 
-/* ── EXPORT ── */
+/* ── TABELLA RAPPORTI ── */
+#tabella-rapporti th {
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 8px 10px; text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0;
+  white-space: nowrap;
+}
+#tabella-rapporti td {
+  padding: 8px 10px; text-align: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 600;
+  border-bottom: 1px solid #1e1e20;
+  cursor: pointer; transition: background 0.1s;
+  white-space: nowrap;
+}
+#tabella-rapporti td:first-child {
+  background: var(--surface2);
+  color: var(--muted); font-size: 12px;
+  font-weight: 700; letter-spacing: 1px;
+  position: sticky; left: 0;
+  border-right: 1px solid var(--border);
+}
+#tabella-rapporti tr:hover td { background: rgba(255,107,0,0.08); }
+#tabella-rapporti tr:hover td:first-child { background: rgba(255,107,0,0.15); }
+.rap-basso { color: var(--red); }
+.rap-medio { color: var(--accent2); }
+.rap-alto  { color: var(--green); }
+
+
 .export-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .export-row .btn { flex: 1; min-width: 120px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 </style>
@@ -575,6 +607,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
   <div class="nav-tab" onclick="showPage('piste')">
     <span class="tab-icon">🏁</span>Piste<span class="pro-dot"></span>
   </div>
+  <div class="nav-tab" onclick="showPage('tabella')">
+    <span class="tab-icon">📐</span>Tabella<span class="pro-dot"></span>
+  </div>
 </nav>
 
 <!-- ══════════════════════════════════════════
@@ -614,8 +649,32 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
       <label>Velocità max registrata (km/h)</label>
       <input type="number" id="velocita" placeholder="80" min="1" oninput="aggiorna()">
     </div>
+
+    <!-- CIRCONFERENZA RUOTA — PRO -->
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <label style="margin:0;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;color:var(--text)">
+          <div style="position:relative;display:inline-block">
+            <input type="checkbox" id="circ-toggle" onchange="toggleCirconferenza()" style="opacity:0;width:0;height:0;position:absolute">
+            <div id="circ-toggle-track" style="width:38px;height:22px;background:var(--border);border-radius:11px;transition:background 0.2s;cursor:pointer" onclick="document.getElementById('circ-toggle').click()">
+              <div id="circ-toggle-thumb" style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:2px;left:2px;transition:left 0.2s"></div>
+            </div>
+          </div>
+          <span>Usa circonferenza ruota</span>
+        </label>
+        <span class="pro-badge" style="font-size:9px;padding:2px 6px" id="circ-pro-badge">PRO</span>
+      </div>
+      <div id="circ-field" style="display:none">
+        <label>Circonferenza ruota (mm)</label>
+        <input type="number" id="circonferenza" placeholder="es. 1090" min="1" oninput="aggiorna()">
+        <div class="hint" style="margin-top:6px;margin-bottom:0">
+          Con la circonferenza il calcolo usa gli RPM e la misura reale della gomma — più preciso di una semplice proporzione.
+        </div>
+      </div>
+    </div>
+
     <div id="info-attuale" style="display:none">
-      <div class="info-grid">
+      <div class="info-grid" style="margin-top:10px">
         <div class="info-box">
           <div class="ib-label">Rapporto</div>
           <div class="ib-value" id="val-rapporto">—</div>
@@ -623,6 +682,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
         <div class="info-box">
           <div class="ib-label">Vel. teorica</div>
           <div class="ib-value" id="val-vel-teorica">—</div>
+        </div>
+        <div class="info-box full" id="box-rpm-reali" style="display:none">
+          <div class="ib-label">Giri motore a V-max</div>
+          <div class="ib-value" id="val-rpm-reali" style="font-size:18px">—</div>
         </div>
       </div>
     </div>
@@ -786,6 +849,51 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════
+     PAGE: TABELLA RAPPORTI
+══════════════════════════════════════════ -->
+<div id="page-tabella" class="page">
+  <div id="tabella-locked-banner" class="upsell-banner" style="display:none">
+    <div class="ub-title">⭐ KART RAPPORTI PRO</div>
+    <div class="ub-features">Sblocca la tabella completa dei rapporti e tutte le funzionalità Pro.</div>
+    <div class="ub-price">2,99€ <small>pagamento unico</small></div>
+    <button class="btn btn-gold btn-full" onclick="compilaRichiesta()">🔓 SBLOCCA PRO</button>
+  </div>
+  <div id="tabella-content">
+    <div class="section-label">Tabella rapporti</div>
+
+    <!-- Filtro tipo motore -->
+    <div class="card" style="padding:12px 14px;margin-bottom:12px">
+      <div class="chip-row" style="margin-bottom:0" id="chip-motore-tab">
+        <div class="chip active" onclick="setModoTabella(this,'standard')">MINI / OKJ / OKN / OK</div>
+        <div class="chip" onclick="setModoTabella(this,'kz')">KZ</div>
+      </div>
+    </div>
+
+    <!-- Filtro pignone -->
+    <div class="card" style="padding:12px 14px;margin-bottom:12px">
+      <label style="margin-bottom:8px;display:block">Filtra per pignone</label>
+      <div class="chip-row" style="margin-bottom:0" id="chip-pignone-tab">
+        <!-- generato da JS -->
+      </div>
+    </div>
+
+    <!-- Tabella -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="overflow-x:auto">
+        <table id="tabella-rapporti" style="width:100%;border-collapse:collapse;min-width:280px">
+          <thead id="tabella-thead"></thead>
+          <tbody id="tabella-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="hint" style="margin-top:8px;text-align:center">
+      Tocca una combinazione per caricarla direttamente nel calcolo
+    </p>
+  </div>
+</div>
+
 </div><!-- /container -->
 
 <!-- ══ MODAL: SALVA PRESET ══ -->
@@ -890,89 +998,51 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 </div>
 
 <script>
-// ══════════════════════════════════════
+                                    
 // STATO APP
-// ══════════════════════════════════════
+                                    
 
-// Storage sicuro — funziona sia su sito reale che in anteprima
-const store = (() => {
-  const mem = {};
+// Storage sicuro = funziona sia su sito reale che in anteprima
+const store = (function() {
+  var mem = {};
   return {
-    get(k) { try { return localStorage.getItem(k); } catch(e) { return mem[k] ?? null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch(e) { mem[k] = v; } },
-    remove(k) { try { localStorage.removeItem(k); } catch(e) { delete mem[k]; } },
+    get: function(k) { try { return localStorage.getItem(k); } catch(e) { return mem[k] !== undefined ? mem[k] : null; } },
+    set: function(k, v) { try { localStorage.setItem(k, v); } catch(e) { mem[k] = v; } },
+    remove: function(k) { try { localStorage.removeItem(k); } catch(e) { delete mem[k]; } }
   };
 })();
 
-// Codici validi — aggiungine quanti vuoi, mandali ai clienti dopo il pagamento
+// Codici validi = aggiungine quanti vuoi, mandali ai clienti dopo il pagamento
 const CODICI_VALIDI = [
-  'MTE-RAPPORTI001',
-  'MTE-RAPPORTI002',
-  'MTE-RAPPORTI003',
-  'MTE-RAPPORTI004',
-  'MTE-RAPPORTI005',
-  'MTE-RAPPORTI006',
-  'MTE-RAPPORTI007',
-  'MTE-RAPPORTI008',
-  'MTE-RAPPORTI009',
-  'MTE-RAPPORTI010',
-  'MTE-RAPPORTI011',
-  'MTE-RAPPORTI012',
-  'MTE-RAPPORTI013',
-  'MTE-RAPPORTI014',
-  'MTE-RAPPORTI015',
-  'MTE-RAPPORTI016',
-  'MTE-RAPPORTI017',
-  'MTE-RAPPORTI018',
-  'MTE-RAPPORTI019',
-  'MTE-RAPPORTI020',
-  'MTE-RAPPORTI021',
-  'MTE-RAPPORTI022',
-  'MTE-RAPPORTI023',
-  'MTE-RAPPORTI024',
-  'MTE-RAPPORTI025',
-  'MTE-RAPPORTI026',
-  'MTE-RAPPORTI027',
-  'MTE-RAPPORTI028',
-  'MTE-RAPPORTI029',
-  'MTE-RAPPORTI030',
-  'MTE-RAPPORTI031',
-  'MTE-RAPPORTI032',
-  'MTE-RAPPORTI033',
-  'MTE-RAPPORTI034',
-  'MTE-RAPPORTI035',
-  'MTE-RAPPORTI036',
-  'MTE-RAPPORTI037',
-  'MTE-RAPPORTI038',
-  'MTE-RAPPORTI039',
-  'MTE-RAPPORTI040',
-  'MTE-RAPPORTI041',
-  'MTE-RAPPORTI042',
-  'MTE-RAPPORTI043',
-  'MTE-RAPPORTI044',
-  'MTE-RAPPORTI045',
-  'MTE-RAPPORTI046',
-  'MTE-RAPPORTI047',
-  'MTE-RAPPORTI048',
-  'MTE-RAPPORTI049',
-  'MTE-RAPPORTI050',
-  'MTE-RAPPORTI051',
+  'KART-2024-PRO1',
+  'KART-2024-PRO2',
+  'KART-2024-PRO3',
+  'KART-GARA-0001',
+  'KART-GARA-0002',
+  'KART-GARA-0003',
+  'KART-GARA-0004',
+  'KART-GARA-0005',
 ];
 
-let isPro = store.get('kartpro_attivo') === '1';
+let isPro = false;
 let righe = [];
-let presets = JSON.parse(store.get('kartpro_presets') || '[]');
-let sessioni = JSON.parse(store.get('kartpro_sessioni') || '[]');
+let presets = [];
+let sessioni = [];
+try {
+  isPro = store.get('kartpro_attivo') === '1';
+  presets = JSON.parse(store.get('kartpro_presets') || '[]');
+  sessioni = JSON.parse(store.get('kartpro_sessioni') || '[]');
+} catch(e) { isPro = false; presets = []; sessioni = []; }
 let filtroCategoria = '';
 
 // KZ marce default (rapporti interni tipici cambio Maxter/IAME)
 let kzMarce = [
-  { label: '1ª', ratio: 2.615 },
-  { label: '2ª', ratio: 1.882 },
-  { label: '3ª', ratio: 1.450 },
-  { label: '4ª', ratio: 1.190 },
-  { label: '5ª', ratio: 1.043 },
-  { label: '6ª', ratio: 0.931 },
+  { label: '1 ', ratio: 2.615 },
+  { label: '2 ', ratio: 1.882 },
+  { label: '3 ', ratio: 1.450 },
+  { label: '4 ', ratio: 1.190 },
+  { label: '5 ', ratio: 1.043 },
+  { label: '6 ', ratio: 0.931 },
 ];
 
 // Database piste
@@ -987,43 +1057,44 @@ const pisteDB = [
   { nome: 'WSK La Conca', loc: 'Muro Leccese (LE)', categorie: ['MINI','OKJ','OK','KZ'], corona: { MINI:80, OKJ:78, OK:76, KZ:70 }, pignone: { MINI:11, OKJ:11, OK:11, KZ:11 }, vmax: { MINI:88, OKJ:118, OK:132, KZ:148 }, lung: 1400 },
 ];
 
-// ══════════════════════════════════════
+                                    
 // NAV
-// ══════════════════════════════════════
+                                    
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   const tabs = document.querySelectorAll('.nav-tab');
-  const idx = ['calcolo','preset','storico','kz','piste'].indexOf(name);
+  const idx = ['calcolo','preset','storico','kz','piste','tabella'].indexOf(name);
   if (idx >= 0) tabs[idx].classList.add('active');
 
   if (name === 'preset') renderPresets();
   if (name === 'storico') renderStorico();
   if (name === 'kz') { initKZInputs(); calcKZ(); updateProLocks(); }
   if (name === 'piste') renderPiste();
+  if (name === 'tabella') { initTabella(); updateProLocks(); }
   updateProLocks();
 }
 
-// ══════════════════════════════════════
+                                    
 // PRO TOGGLE
-// ══════════════════════════════════════
+                                    
 function aggiornaBadgePro() {
   const badge = document.getElementById('pro-status-badge');
   if (isPro) {
-    badge.innerHTML = '<span style="background:linear-gradient(135deg,#f0c040,#e0a020);color:#111;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:11px;letter-spacing:2px;padding:4px 10px;border-radius:4px">⭐ PRO</span>';
+    badge.innerHTML = '<span style="background:linear-gradient(135deg,#f0c040,#e0a020);color:#111;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:11px;letter-spacing:2px;padding:4px 10px;border-radius:4px">  PRO</span>';
   } else {
-    badge.innerHTML = '<span style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:11px;font-weight:700;padding:4px 10px;border-radius:4px;letter-spacing:1px">🔒 FREE</span>';
+    badge.innerHTML = '<span style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:11px;font-weight:700;padding:4px 10px;border-radius:4px;letter-spacing:1px">  FREE</span>';
   }
 }
 
 function mostraStatoPro() {
   const el = document.getElementById('stato-pro-content');
   if (isPro) {
-    const codice = store.get('kartpro_codice') || '—';
+    const codice = store.get('kartpro_codice') || ' ';
     el.innerHTML = `
       <div style="text-align:center;padding:16px 0">
-        <div style="font-size:48px;margin-bottom:8px">⭐</div>
+        <div style="font-size:48px;margin-bottom:8px"> </div>
         <div style="font-family:Barlow Condensed,sans-serif;font-size:22px;font-weight:900;color:var(--gold)">VERSIONE PRO ATTIVA</div>
         <div style="font-size:12px;color:var(--muted);margin-top:6px">Codice: ${codice}</div>
       </div>
@@ -1031,10 +1102,10 @@ function mostraStatoPro() {
   } else {
     el.innerHTML = `
       <div style="text-align:center;padding:12px 0 16px">
-        <div style="font-size:36px;margin-bottom:6px">🔒</div>
+        <div style="font-size:36px;margin-bottom:6px"> </div>
         <div style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:700;color:var(--muted)">Versione FREE</div>
       </div>
-      <button class="btn btn-gold btn-full" onclick="closeModal('modal-stato-pro');showUpsell()">⭐ Sblocca PRO — 2,99€</button>`;
+      <button class="btn btn-gold btn-full" onclick="closeModal('modal-stato-pro');showUpsell()">  Sblocca PRO   2,99 </button>`;
   }
   openModal('modal-stato-pro');
 }
@@ -1044,12 +1115,12 @@ function attivaCodice() {
   const msg = document.getElementById('codice-msg');
   const codice = input.value.trim().toUpperCase();
 
-  if (!codice) { mostraMsg(msg, '⚠️ Inserisci un codice.', 'var(--accent2)'); return; }
+  if (!codice) { mostraMsg(msg, '   Inserisci un codice.', 'var(--accent2)'); return; }
 
-  // Controlla se già usato
+  // Controlla se gi= usato
   const usati = JSON.parse(store.get('kartpro_usati') || '[]');
   if (usati.includes(codice)) {
-    mostraMsg(msg, '⚠️ Questo codice è già stato usato su questo dispositivo.', 'var(--accent)');
+    mostraMsg(msg, '   Questo codice   gi  stato usato su questo dispositivo.', 'var(--accent)');
     return;
   }
 
@@ -1064,9 +1135,9 @@ function attivaCodice() {
     closeModal('modal-upsell');
     updateProLocks();
     aggiornaBadgePro();
-    setTimeout(() => alert('🎉 PRO attivato! Benvenuto nella versione completa.'), 200);
+    setTimeout(() => alert('  PRO attivato! Benvenuto nella versione completa.'), 200);
   } else {
-    mostraMsg(msg, '❌ Codice non valido. Controlla di averlo inserito correttamente.', 'var(--red)');
+    mostraMsg(msg, '  Codice non valido. Controlla di averlo inserito correttamente.', 'var(--red)');
   }
 }
 
@@ -1101,7 +1172,7 @@ function inviaRichiesta() {
   if (!nome) { alert('Inserisci il tuo nome.'); return; }
   if (!tel) { alert('Inserisci il tuo numero WhatsApp.'); return; }
   const note = document.getElementById('req-note').value.trim();
-  const testo = `Ciao! Vorrei acquistare *Kart Rapporti PRO* 🏎️\n\n👤 Nome: ${nome}\n📱 Contatto: ${tel}${note ? `\n📝 Note: ${note}` : ''}\n\nAttendo il link per il pagamento. Grazie!`;
+  const testo = `Ciao! Vorrei acquistare *Kart Rapporti PRO*   \n\n  Nome: ${nome}\n  Contatto: ${tel}${note ? `\n  Note: ${note}` : ''}\n\nAttendo il link per il pagamento. Grazie!`;
   const url = `https://wa.me/393203805180?text=${encodeURIComponent(testo)}`;
   window.open(url, '_blank');
   closeModal('modal-richiesta');
@@ -1121,7 +1192,7 @@ function updateProLocks() {
     const el = document.getElementById(id);
     if (el) el.style.display = isPro ? 'none' : 'flex';
   });
-  ['preset','storico','kz','piste'].forEach(name => {
+  ['preset','storico','kz','piste','tabella'].forEach(name => {
     const banner = document.getElementById(name + '-locked-banner');
     const content = document.getElementById(name + '-content');
     if (banner) banner.style.display = isPro ? 'none' : 'block';
@@ -1129,7 +1200,35 @@ function updateProLocks() {
   });
 }
 
-function setPreset(btn, rpm) {
+function toggleCirconferenza() {
+  const cb = document.getElementById('circ-toggle');
+  if (!isPro && cb.checked) {
+    cb.checked = false;
+    showUpsell();
+    return;
+  }
+  const track = document.getElementById('circ-toggle-track');
+  const thumb = document.getElementById('circ-toggle-thumb');
+  const field = document.getElementById('circ-field');
+  if (cb.checked) {
+    track.style.background = 'var(--accent2)';
+    thumb.style.left = '18px';
+    field.style.display = 'block';
+  } else {
+    track.style.background = 'var(--border)';
+    thumb.style.left = '2px';
+    field.style.display = 'none';
+  }
+  aggiorna();
+}
+
+function getCirconferenza() {
+  const cb = document.getElementById('circ-toggle');
+  if (!cb.checked) return 0;
+  return parseFloat(document.getElementById('circonferenza').value) || 0;
+}
+
+
   document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('rpm-motore').value = rpm;
@@ -1156,17 +1255,38 @@ function getK(a) {
 
 function aggiorna() {
   const a = getAttuale();
+  const circ = getCirconferenza(); // mm
   const wrap = document.getElementById('info-attuale');
+
   if (a.corona > 0 && a.pignone > 0) {
     const r = a.corona / a.pignone;
     document.getElementById('val-rapporto').textContent = r.toFixed(3);
-    const k = getK(a);
-    if (k && a.rpm > 0) {
-      const vTeor = (a.rpm * k) / r;
-      document.getElementById('val-vel-teorica').textContent = vTeor.toFixed(1) + ' km/h';
-    } else {
-      document.getElementById('val-vel-teorica').textContent = '—';
+
+    // Velocit= teorica = 3 metodi per precisione crescente
+    let velTeor = ' ';
+    if (circ > 0 && a.rpm > 0) {
+      // Metodo pi= preciso: usa circonferenza reale + RPM
+      // V (km/h) = (RPM / rapporto) * (circ_mm / 1000) * 60 / 1000
+      const v = (a.rpm / r) * (circ / 1000) * 60 / 1000;
+      velTeor = v.toFixed(1) + ' km/h  ';
+    } else if (a.velocita > 0 && a.rpm > 0) {
+      // Metodo intermedio: costante da V-max misurata + RPM
+      const k = getK(a);
+      if (k) velTeor = ((a.rpm * k) / r).toFixed(1) + ' km/h';
     }
+    document.getElementById('val-vel-teorica').textContent = velTeor;
+
+    // Giri motore reali (solo con circonferenza + velocit= misurata)
+    const boxRpm = document.getElementById('box-rpm-reali');
+    if (circ > 0 && a.velocita > 0) {
+      // RPM = V(m/min) / circ(m) * rapporto
+      const rpmReali = ((a.velocita * 1000 / 60) / (circ / 1000)) * r;
+      document.getElementById('val-rpm-reali').textContent = Math.round(rpmReali).toLocaleString('it') + ' giri/min';
+      boxRpm.style.display = 'block';
+    } else {
+      boxRpm.style.display = 'none';
+    }
+
     wrap.style.display = 'block';
   } else {
     wrap.style.display = 'none';
@@ -1174,16 +1294,24 @@ function aggiorna() {
   renderTabella();
 }
 
+
 function calcVelocita(cn, pn) {
   const a = getAttuale();
+  const circ = getCirconferenza();
+  const r2 = cn / pn;
+
+  // Metodo 1 = pi= preciso: circonferenza + RPM
+  if (circ > 0 && a.rpm > 0) {
+    return (a.rpm / r2) * (circ / 1000) * 60 / 1000;
+  }
+  // Metodo 2 = intermedio: costante da V-max + RPM
   const k = getK(a);
   if (k && a.rpm > 0) {
-    const r2 = cn / pn;
     return (a.rpm * k) / r2;
   }
+  // Metodo 3 = base: proporzione semplice
   if (a.velocita > 0 && a.corona > 0 && a.pignone > 0) {
     const r1 = a.corona / a.pignone;
-    const r2 = cn / pn;
     return a.velocita * (r2 / r1);
   }
   return null;
@@ -1193,7 +1321,7 @@ function aggiungiRapporto() {
   const c = parseFloat(document.getElementById('new-corona').value);
   const p = parseFloat(document.getElementById('new-pignone').value);
   if (!c || !p || c <= 0 || p <= 0) { alert('Inserisci corona e pignone validi.'); return; }
-  if (righe.find(r => r.corona === c && r.pignone === p)) { alert('Rapporto già presente.'); return; }
+  if (righe.find(r => r.corona === c && r.pignone === p)) { alert('Rapporto gi  presente.'); return; }
   righe.push({ corona: c, pignone: p, id: Date.now() });
   document.getElementById('new-corona').value = '';
   document.getElementById('new-pignone').value = '';
@@ -1224,23 +1352,23 @@ function renderTabella() {
   tbody.innerHTML = '';
   tutteLe.forEach(row => {
     const r = row.corona / row.pignone;
-    let velHtml = '—';
+    let velHtml = ' ';
     if (row.attuale) {
       velHtml = a.velocita > 0
         ? `<span class="vel-same">${a.velocita.toFixed(1)}</span>`
-        : '<span style="color:var(--muted);font-size:12px">—</span>';
+        : '<span style="color:var(--muted);font-size:12px"> </span>';
     } else {
       const v = calcVelocita(row.corona, row.pignone);
       if (v !== null) {
         const diff = a.velocita > 0 ? v - a.velocita : 0;
         const cls = diff > 0.5 ? 'vel-higher' : diff < -0.5 ? 'vel-lower' : 'vel-same';
-        const arrow = diff > 0.5 ? '▲' : diff < -0.5 ? '▼' : '●';
+        const arrow = diff > 0.5 ? ' ' : diff < -0.5 ? ' ' : ' ';
         velHtml = `<span class="${cls}"><span class="diff-arrow">${arrow}</span>${v.toFixed(1)}</span>`;
       }
     }
     const badge = row.attuale ? '<span class="badge-attuale">ATT.</span>' : '';
     const delBtn = !row.attuale
-      ? `<button class="delete-btn" onclick="rimuovi(${row.id})">✕</button>` : '';
+      ? `<button class="delete-btn" onclick="rimuovi(${row.id})"> </button>` : '';
     const tr = document.createElement('tr');
     if (row.attuale) tr.className = 'attuale';
     tr.innerHTML = `
@@ -1252,22 +1380,22 @@ function renderTabella() {
   });
 }
 
-// ══════════════════════════════════════
+                                    
 // EXPORT
-// ══════════════════════════════════════
+                                    
 function exportTesto() {
   const a = getAttuale();
   if (!a.corona || !a.pignone) { alert('Inserisci prima la configurazione attuale.'); return; }
-  let testo = `🏎️ KART RAPPORTI PRO\n`;
-  testo += `━━━━━━━━━━━━━━━━━━━━\n`;
-  testo += `Motore: ${a.rpm > 0 ? a.rpm.toLocaleString('it') + ' RPM' : '—'}\n`;
+  let testo = `   KART RAPPORTI PRO\n`;
+  testo += `                    \n`;
+  testo += `Motore: ${a.rpm > 0 ? a.rpm.toLocaleString('it') + ' RPM' : ' '}\n`;
   testo += `Rapporto attuale: ${a.corona}/${a.pignone} = ${(a.corona/a.pignone).toFixed(3)}\n`;
-  testo += `Velocità max: ${a.velocita > 0 ? a.velocita + ' km/h' : '—'}\n\n`;
+  testo += `Velocit  max: ${a.velocita > 0 ? a.velocita + ' km/h' : ' '}\n\n`;
   if (righe.length > 0) {
     testo += `CONFRONTO RAPPORTI:\n`;
     righe.forEach(row => {
       const v = calcVelocita(row.corona, row.pignone);
-      testo += `• ${row.corona}/${row.pignone} → ${v ? v.toFixed(1) + ' km/h' : '—'}\n`;
+      testo += `  ${row.corona}/${row.pignone}   ${v ? v.toFixed(1) + ' km/h' : ' '}\n`;
     });
   }
   testo += `\nGenerato con Kart Rapporti PRO`;
@@ -1290,20 +1418,20 @@ function exportPDF() {
 
   tutteLe.forEach(row => {
     const r = (row.corona / row.pignone).toFixed(3);
-    const v = row.attuale ? (a.velocita || '—') : (calcVelocita(row.corona, row.pignone) || {toFixed:()=>'—'});
-    const vStr = row.attuale ? (a.velocita ? a.velocita + ' km/h' : '—') : (calcVelocita(row.corona, row.pignone) ? calcVelocita(row.corona, row.pignone).toFixed(1) + ' km/h' : '—');
+    const v = row.attuale ? (a.velocita || ' ') : (calcVelocita(row.corona, row.pignone) || {toFixed:()=>' '});
+    const vStr = row.attuale ? (a.velocita ? a.velocita + ' km/h' : ' ') : (calcVelocita(row.corona, row.pignone) ? calcVelocita(row.corona, row.pignone).toFixed(1) + ' km/h' : ' ');
     rows += `<tr${row.attuale ? ' style="background:#fff3f0"':''}><td>${row.corona}/${row.pignone}${row.attuale?' (ATT.)':''}</td><td>${r}</td><td>${vStr}</td></tr>`;
   });
 
   win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kart Rapporti PRO</title>
   <style>body{font-family:Arial,sans-serif;padding:30px;color:#111}h1{color:#e83a1e;font-size:22px;margin-bottom:4px}.sub{color:#888;font-size:12px;margin-bottom:20px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#e83a1e;color:white;padding:8px 12px;text-align:left;font-size:12px}td{padding:8px 12px;border-bottom:1px solid #eee;font-size:14px}.info{background:#f5f5f5;padding:12px;border-radius:6px;margin-bottom:16px;font-size:13px}</style>
   </head><body>
-  <h1>🏎️ KART RAPPORTI PRO</h1>
+  <h1>   KART RAPPORTI PRO</h1>
   <div class="sub">Generato il ${new Date().toLocaleDateString('it')}</div>
   <div class="info">
-    <b>Motore:</b> ${a.rpm > 0 ? a.rpm.toLocaleString('it') + ' RPM' : '—'} &nbsp;|&nbsp;
-    <b>Rapporto attuale:</b> ${a.corona > 0 ? a.corona + '/' + a.pignone : '—'} &nbsp;|&nbsp;
-    <b>Vel. max:</b> ${a.velocita > 0 ? a.velocita + ' km/h' : '—'}
+    <b>Motore:</b> ${a.rpm > 0 ? a.rpm.toLocaleString('it') + ' RPM' : ' '} &nbsp;|&nbsp;
+    <b>Rapporto attuale:</b> ${a.corona > 0 ? a.corona + '/' + a.pignone : ' '} &nbsp;|&nbsp;
+    <b>Vel. max:</b> ${a.velocita > 0 ? a.velocita + ' km/h' : ' '}
   </div>
   <table><thead><tr><th>Corona / Pignone</th><th>Rapporto</th><th>Vel. max</th></tr></thead>
   <tbody>${rows}</tbody></table>
@@ -1311,9 +1439,9 @@ function exportPDF() {
   win.document.close();
 }
 
-// ══════════════════════════════════════
+                                    
 // PRESET SETUP (PRO)
-// ══════════════════════════════════════
+                                    
 function openNuovoPreset() {
   if (!isPro) { showUpsell(); return; }
   const a = getAttuale();
@@ -1348,19 +1476,19 @@ function salvaPreset() {
 function renderPresets() {
   const list = document.getElementById('preset-list');
   if (presets.length === 0) {
-    list.innerHTML = '<div class="empty-state"><span class="empty-icon">💾</span>Nessun preset salvato.<br>Salva la tua configurazione attuale!</div>';
+    list.innerHTML = '<div class="empty-state"><span class="empty-icon"> </span>Nessun preset salvato.<br>Salva la tua configurazione attuale!</div>';
     return;
   }
   list.innerHTML = presets.map(p => `
     <div class="setup-card">
       <div onclick="caricaPreset(${p.id})" style="flex:1">
         <div class="sc-name">${p.nome}</div>
-        <div class="sc-detail">Corona ${p.corona || '—'} / Pignone ${p.pignone || '—'} • ${p.rpm ? p.rpm + ' RPM' : '—'} • ${p.vel ? p.vel + ' km/h' : '—'}</div>
+        <div class="sc-detail">Corona ${p.corona || ' '} / Pignone ${p.pignone || ' '}   ${p.rpm ? p.rpm + ' RPM' : ' '}   ${p.vel ? p.vel + ' km/h' : ' '}</div>
         ${p.note ? `<div class="sc-detail" style="margin-top:3px;font-style:italic">${p.note}</div>` : ''}
       </div>
       <div class="sc-actions">
-        <button class="btn btn-ghost" style="height:34px;font-size:11px" onclick="caricaPreset(${p.id})">▶ Carica</button>
-        <button class="delete-btn" onclick="eliminaPreset(${p.id})">✕</button>
+        <button class="btn btn-ghost" style="height:34px;font-size:11px" onclick="caricaPreset(${p.id})">  Carica</button>
+        <button class="delete-btn" onclick="eliminaPreset(${p.id})"> </button>
       </div>
     </div>
   `).join('');
@@ -1384,9 +1512,9 @@ function eliminaPreset(id) {
   renderPresets();
 }
 
-// ══════════════════════════════════════
+                                    
 // STORICO SESSIONI (PRO)
-// ══════════════════════════════════════
+                                    
 function openSalvaSessione() {
   if (!isPro) { showUpsell(); return; }
   document.getElementById('sess-pista').value = '';
@@ -1426,7 +1554,7 @@ function renderStorico(filtro = '') {
     !filtro || s.pista.toLowerCase().includes(filtro.toLowerCase())
   );
   if (items.length === 0) {
-    list.innerHTML = '<div class="empty-state"><span class="empty-icon">📋</span>Nessuna sessione trovata.</div>';
+    list.innerHTML = '<div class="empty-state"><span class="empty-icon"> </span>Nessuna sessione trovata.</div>';
     return;
   }
   list.innerHTML = items.map(s => `
@@ -1434,9 +1562,9 @@ function renderStorico(filtro = '') {
       <div class="sc-header">
         <div>
           <div class="sc-pista">${s.pista}</div>
-          <div class="sc-data">${s.data} • ${s.condizioni}</div>
+          <div class="sc-data">${s.data}   ${s.condizioni}</div>
         </div>
-        <button class="delete-btn" onclick="eliminaSessione(${s.id})">✕</button>
+        <button class="delete-btn" onclick="eliminaSessione(${s.id})"> </button>
       </div>
       <div class="sc-tags">
         ${s.corona ? `<span class="sc-tag highlight">Corona ${s.corona} / Pig. ${s.pignone}</span>` : ''}
@@ -1456,22 +1584,22 @@ function eliminaSessione(id) {
   renderStorico();
 }
 
-// ══════════════════════════════════════
+                                    
 // KZ MARCE (PRO)
-// ══════════════════════════════════════
+                                    
 function initKZInputs() {
   const wrap = document.getElementById('kz-marce-inputs');
   if (wrap.innerHTML !== '') return;
   wrap.innerHTML = kzMarce.map((m, i) => `
     <div class="field-group" style="margin-bottom:8px">
       <div>
-        <label>${m.label} marcia — rapporto interno</label>
+        <label>${m.label} marcia   rapporto interno</label>
         <input type="number" id="kz-m${i}" value="${m.ratio}" step="0.001" min="0.1" oninput="calcKZ()">
       </div>
       <div style="display:flex;align-items:flex-end">
         <div class="info-box" style="width:100%;margin-bottom:0">
           <div class="ib-label">Vel. ${m.label}</div>
-          <div class="ib-value" id="kz-v${i}" style="font-size:18px">—</div>
+          <div class="ib-value" id="kz-v${i}" style="font-size:18px"> </div>
         </div>
       </div>
     </div>
@@ -1487,10 +1615,10 @@ function calcKZ() {
 
   // Rapporto finale
   const rFinale = corona / pignone;
-  // La velocità in top gear (6ª) è vmax
-  // Leggiamo il rapporto di 6ª per calcolare la costante
+  // La velocit= in top gear (6=) = vmax
+  // Leggiamo il rapporto di 6= per calcolare la costante
   const r6 = parseFloat(document.getElementById('kz-m5')?.value) || kzMarce[5].ratio;
-  // velocità = vmax * (r6 / rx) * (rFinale6 / rFinaleX) — ma il rapporto finale è lo stesso
+  // velocit= = vmax * (r6 / rx) * (rFinale6 / rFinaleX) = ma il rapporto finale = lo stesso
   // Quindi: v_marcia = vmax * (r6 / r_marcia)
   // (assumendo lo stesso rapporto finale corona/pignone per tutte le marce)
 
@@ -1502,9 +1630,9 @@ function calcKZ() {
   }
 }
 
-// ══════════════════════════════════════
+                                    
 // DATABASE PISTE (PRO)
-// ══════════════════════════════════════
+                                    
 function filtraPiste(q) { renderPiste(q, filtroCategoria); }
 function filtraCategoria(el, cat) {
   document.querySelectorAll('#chip-categoria .chip').forEach(c => c.classList.remove('active'));
@@ -1522,7 +1650,7 @@ function renderPiste(q = '', cat = '') {
   });
 
   if (items.length === 0) {
-    list.innerHTML = '<div class="empty-state"><span class="empty-icon">🏁</span>Nessuna pista trovata.</div>';
+    list.innerHTML = '<div class="empty-state"><span class="empty-icon"> </span>Nessuna pista trovata.</div>';
     return;
   }
 
@@ -1537,25 +1665,25 @@ function renderPiste(q = '', cat = '') {
       <div class="pc-header">
         <div>
           <div class="pc-nome">${p.nome}</div>
-          <div class="pc-loc">📍 ${p.loc} • ${p.lung}m</div>
+          <div class="pc-loc">  ${p.loc}   ${p.lung}m</div>
         </div>
       </div>
       <div class="pc-grid">
         <div class="pc-box">
           <div class="pcb-label">Corona</div>
-          <div class="pcb-val">${c || '—'}</div>
+          <div class="pcb-val">${c || ' '}</div>
         </div>
         <div class="pc-box">
           <div class="pcb-label">Pignone</div>
-          <div class="pcb-val">${pg || '—'}</div>
+          <div class="pcb-val">${pg || ' '}</div>
         </div>
         <div class="pc-box">
           <div class="pcb-label">V-max est.</div>
-          <div class="pcb-val">${v ? v + ' km/h' : '—'}</div>
+          <div class="pcb-val">${v ? v + ' km/h' : ' '}</div>
         </div>
       </div>
       <div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap">${cats}</div>
-      ${c && pg ? `<button class="carica-btn" onclick="caricaDaPista('${p.nome}',${c},${pg})">▶ Usa questo rapporto nel calcolo</button>` : ''}
+      ${c && pg ? `<button class="carica-btn" onclick="caricaDaPista('${p.nome}',${c},${pg})">  Usa questo rapporto nel calcolo</button>` : ''}
     </div>`;
   }).join('');
 }
@@ -1567,9 +1695,9 @@ function caricaDaPista(nome, corona, pignone) {
   showPage('calcolo');
 }
 
-// ══════════════════════════════════════
+                                    
 // MODAL HELPERS
-// ══════════════════════════════════════
+                                    
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
@@ -1580,9 +1708,89 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
   });
 });
 
-// ══════════════════════════════════════
+                                    
+// TABELLA RAPPORTI (PRO)
+                                    
+let modoTabella = 'standard'; // 'standard' o 'kz'
+let pignoneFiltroTab = 0;     // 0 = tutti
+
+const CONFIG_TAB = {
+  standard: { pignoni: [10,11,12,13,14], corone: Array.from({length:24}, (_,i)=>65+i) }, // 65-88
+  kz:       { pignoni: Array.from({length:8}, (_,i)=>14+i), corone: Array.from({length:10}, (_,i)=>20+i) }, // pig 14-21, cor 20-29
+};
+
+function setModoTabella(el, modo) {
+  document.querySelectorAll('#chip-motore-tab .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  modoTabella = modo;
+  pignoneFiltroTab = 0;
+  buildChipPignone();
+  buildTabella();
+}
+
+function buildChipPignone() {
+  const cfg = CONFIG_TAB[modoTabella];
+  const wrap = document.getElementById('chip-pignone-tab');
+  wrap.innerHTML = `<div class="chip active" onclick="filtraPignoneTab(this,0)">Tutti</div>` +
+    cfg.pignoni.map(p => `<div class="chip" onclick="filtraPignoneTab(this,${p})">Pig. ${p}</div>`).join('');
+}
+
+function filtraPignoneTab(el, pig) {
+  document.querySelectorAll('#chip-pignone-tab .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  pignoneFiltroTab = pig;
+  buildTabella();
+}
+
+function buildTabella() {
+  const cfg = CONFIG_TAB[modoTabella];
+  const pignoni = pignoneFiltroTab > 0 ? [pignoneFiltroTab] : cfg.pignoni;
+  const corone = cfg.corone;
+
+  // Header: corona | pig10 | pig11 | ...
+  const thead = document.getElementById('tabella-thead');
+  thead.innerHTML = `<tr>
+    <th>Corona</th>
+    ${pignoni.map(p => `<th>Pig. ${p}</th>`).join('')}
+  </tr>`;
+
+  // Body: una riga per corona
+  const tbody = document.getElementById('tabella-tbody');
+  // calcola min/max per colorazione
+  let minR = 999, maxR = 0;
+  corone.forEach(c => pignoni.forEach(p => {
+    const r = c/p; if(r<minR) minR=r; if(r>maxR) maxR=r;
+  }));
+  const range = maxR - minR;
+
+  tbody.innerHTML = corone.map(corona => `
+    <tr>
+      <td>${corona}</td>
+      ${pignoni.map(pignone => {
+        const r = (corona / pignone);
+        const pct = range > 0 ? (r - minR) / range : 0.5;
+        const cls = pct < 0.33 ? 'rap-basso' : pct < 0.66 ? 'rap-medio' : 'rap-alto';
+        return `<td class="${cls}" onclick="caricaDaTabella(${corona},${pignone})" title="Carica ${corona}/${pignone}">${r.toFixed(2)}</td>`;
+      }).join('')}
+    </tr>
+  `).join('');
+}
+
+function caricaDaTabella(corona, pignone) {
+  document.getElementById('corona').value = corona;
+  document.getElementById('pignone').value = pignone;
+  aggiorna();
+  showPage('calcolo');
+}
+
+function initTabella() {
+  buildChipPignone();
+  buildTabella();
+}
+
+                                    
 // INIT
-// ══════════════════════════════════════
+                                    
 updateProLocks();
 aggiornaBadgePro();
 renderPiste();
