@@ -88,7 +88,7 @@ header {
   scrollbar-width: none;
   position: sticky;
   top: 53px;
-  z-index: 99;
+  z-index: 50;
 }
 .nav-tabs::-webkit-scrollbar { display: none; }
 .nav-tab {
@@ -724,7 +724,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 
   <!-- SALVA SESSIONE (PRO) -->
   <div style="position:relative; margin-bottom:16px;">
-    <div id="salva-lock" class="lock-overlay" style="border-radius:8px" onclick="showUpsell()">
+    <div id="salva-lock" class="lock-overlay" style="border-radius:8px; display:none;" onclick="showUpsell()">
       <span class="lock-icon">🔒</span>
       <span class="lock-text">FUNZIONE PRO</span>
     </div>
