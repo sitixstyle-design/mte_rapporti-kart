@@ -285,6 +285,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);}
   </div>
   <div id="piste-cont" style="display:none">
     <div class="sl">Database piste</div>
+    <button class="btn btn-full" style="margin-bottom:14px" onclick="openNuovaPista()">+ Aggiungi pista</button>
     <input class="sb" id="piste-search" type="text" placeholder="Cerca pista..." oninput="renderPiste()">
     <div class="chip-row" id="chip-cat">
       <div class="chip active" onclick="setCat(this,'')">Tutte</div>
@@ -397,6 +398,60 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);}
   </div>
 </div>
 
+<div class="mo" id="mo-pista">
+  <div class="modal">
+    <div class="mt"><span id="mo-pista-title">Aggiungi pista</span> <button class="mc" onclick="closeMo('mo-pista')">&#10005;</button></div>
+    <div style="margin-bottom:10px"><label>Nome pista *</label><input type="text" id="np-nome" placeholder="es. Circuito di Roma"></div>
+    <div style="margin-bottom:10px"><label>Localita *</label><input type="text" id="np-loc" placeholder="es. Roma (RM)"></div>
+    <div style="margin-bottom:10px"><label>Lunghezza pista (m)</label><input type="number" id="np-lung" placeholder="es. 1200"></div>
+    <div class="sl" style="margin-top:4px">Categorie e rapporti</div>
+    <p class="hint">Inserisci i dati per le categorie che conosci. Lascia vuoto le altre.</p>
+    <div id="np-cats">
+      <div style="margin-bottom:10px;padding:10px;background:var(--surface2);border-radius:8px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px">MINI</div>
+        <div class="fg" style="margin-bottom:6px">
+          <div><label>Corona</label><input type="number" id="np-mini-c" placeholder="82"></div>
+          <div><label>Pignone</label><input type="number" id="np-mini-p" placeholder="11"></div>
+        </div>
+        <div><label>Vel. max est. (km/h)</label><input type="number" id="np-mini-v" placeholder="85"></div>
+      </div>
+      <div style="margin-bottom:10px;padding:10px;background:var(--surface2);border-radius:8px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px">OKJ</div>
+        <div class="fg" style="margin-bottom:6px">
+          <div><label>Corona</label><input type="number" id="np-okj-c" placeholder="80"></div>
+          <div><label>Pignone</label><input type="number" id="np-okj-p" placeholder="11"></div>
+        </div>
+        <div><label>Vel. max est. (km/h)</label><input type="number" id="np-okj-v" placeholder="115"></div>
+      </div>
+      <div style="margin-bottom:10px;padding:10px;background:var(--surface2);border-radius:8px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px">OKN</div>
+        <div class="fg" style="margin-bottom:6px">
+          <div><label>Corona</label><input type="number" id="np-okn-c" placeholder="79"></div>
+          <div><label>Pignone</label><input type="number" id="np-okn-p" placeholder="11"></div>
+        </div>
+        <div><label>Vel. max est. (km/h)</label><input type="number" id="np-okn-v" placeholder="120"></div>
+      </div>
+      <div style="margin-bottom:10px;padding:10px;background:var(--surface2);border-radius:8px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px">OK</div>
+        <div class="fg" style="margin-bottom:6px">
+          <div><label>Corona</label><input type="number" id="np-ok-c" placeholder="78"></div>
+          <div><label>Pignone</label><input type="number" id="np-ok-p" placeholder="11"></div>
+        </div>
+        <div><label>Vel. max est. (km/h)</label><input type="number" id="np-ok-v" placeholder="130"></div>
+      </div>
+      <div style="margin-bottom:14px;padding:10px;background:var(--surface2);border-radius:8px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px">KZ</div>
+        <div class="fg" style="margin-bottom:6px">
+          <div><label>Corona</label><input type="number" id="np-kz-c" placeholder="72"></div>
+          <div><label>Pignone</label><input type="number" id="np-kz-p" placeholder="11"></div>
+        </div>
+        <div><label>Vel. max est. (km/h)</label><input type="number" id="np-kz-v" placeholder="145"></div>
+      </div>
+    </div>
+    <button class="btn btn-full btn-gold" onclick="salvaPista()">&#127937; Salva pista</button>
+  </div>
+</div>
+
 <script>
 var CODICI = ['KART-2024-PRO1','KART-2024-PRO2','KART-2024-PRO3','KART-GARA-0001','KART-GARA-0002','KART-GARA-0003','KART-GARA-0004','KART-GARA-0005'];
 
@@ -426,6 +481,96 @@ var PISTE = [
   {nome:'Varano de Melegari',loc:'Varano (PR)',cat:['OKN','OK'],c:{OKN:79,OK:77},p:{OKN:11,OK:11},v:{OKN:118,OK:130},lung:1030},
   {nome:'WSK La Conca',loc:'Muro Leccese (LE)',cat:['MINI','OKJ','OK','KZ'],c:{MINI:80,OKJ:78,OK:76,KZ:70},p:{MINI:11,OKJ:11,OK:11,KZ:11},v:{MINI:88,OKJ:118,OK:132,KZ:148},lung:1400}
 ];
+
+var pisteCustom = [];
+try{ pisteCustom = JSON.parse(S.get('kp_piste')||'[]'); }catch(e){}
+
+var pistaEditId = null;
+
+function openNuovaPista(){
+  pistaEditId = null;
+  document.getElementById('mo-pista-title').textContent = 'Aggiungi pista';
+  document.getElementById('np-nome').value='';
+  document.getElementById('np-loc').value='';
+  document.getElementById('np-lung').value='';
+  ['mini','okj','okn','ok','kz'].forEach(function(c){
+    document.getElementById('np-'+c+'-c').value='';
+    document.getElementById('np-'+c+'-p').value='';
+    document.getElementById('np-'+c+'-v').value='';
+  });
+  openMo('mo-pista');
+}
+
+function openModificaPista(id){
+  var pista=null;
+  for(var i=0;i<pisteCustom.length;i++){if(pisteCustom[i].id===id){pista=pisteCustom[i];break;}}
+  if(!pista){
+    // pista predefinita — cerca in PISTE per nome
+    for(var i=0;i<PISTE.length;i++){if(PISTE[i].nome===id){pista=PISTE[i];break;}}
+  }
+  if(!pista) return;
+  pistaEditId = id;
+  document.getElementById('mo-pista-title').textContent = 'Modifica pista';
+  document.getElementById('np-nome').value=pista.nome||'';
+  document.getElementById('np-loc').value=pista.loc||'';
+  document.getElementById('np-lung').value=pista.lung||'';
+  var IDS=['mini','okj','okn','ok','kz'];
+  var CATS=['MINI','OKJ','OKN','OK','KZ'];
+  for(var i=0;i<CATS.length;i++){
+    document.getElementById('np-'+IDS[i]+'-c').value=(pista.c&&pista.c[CATS[i]])||'';
+    document.getElementById('np-'+IDS[i]+'-p').value=(pista.p&&pista.p[CATS[i]])||'';
+    document.getElementById('np-'+IDS[i]+'-v').value=(pista.v&&pista.v[CATS[i]])||'';
+  }
+  openMo('mo-pista');
+}
+
+function salvaPista(){
+  var nome=document.getElementById('np-nome').value.trim();
+  var loc=document.getElementById('np-loc').value.trim();
+  if(!nome){alert('Inserisci il nome della pista.');return;}
+  if(!loc){alert('Inserisci la localita.');return;}
+  var lung=parseInt(document.getElementById('np-lung').value)||0;
+  var cats=[], cc={}, pp={}, vv={};
+  var CATS=['MINI','OKJ','OKN','OK','KZ'];
+  var IDS=['mini','okj','okn','ok','kz'];
+  for(var i=0;i<CATS.length;i++){
+    var c=parseFloat(document.getElementById('np-'+IDS[i]+'-c').value)||0;
+    var p=parseFloat(document.getElementById('np-'+IDS[i]+'-p').value)||0;
+    var v=parseFloat(document.getElementById('np-'+IDS[i]+'-v').value)||0;
+    if(c>0&&p>0){cats.push(CATS[i]);cc[CATS[i]]=c;pp[CATS[i]]=p;vv[CATS[i]]=v||0;}
+  }
+  if(cats.length===0){alert('Inserisci almeno una categoria con corona e pignone.');return;}
+
+  if(pistaEditId!==null){
+    // Modifica esistente
+    var trovata=false;
+    for(var i=0;i<pisteCustom.length;i++){
+      if(pisteCustom[i].id===pistaEditId){
+        pisteCustom[i]={id:pistaEditId,nome:nome,loc:loc,cat:cats,c:cc,p:pp,v:vv,lung:lung,custom:true};
+        trovata=true;break;
+      }
+    }
+    if(!trovata){
+      // Era una pista predefinita — la salva come custom sovrascritta
+      pisteCustom.unshift({id:pistaEditId,nome:nome,loc:loc,cat:cats,c:cc,p:pp,v:vv,lung:lung,custom:true,override:true});
+    }
+  }else{
+    pisteCustom.unshift({id:Date.now(),nome:nome,loc:loc,cat:cats,c:cc,p:pp,v:vv,lung:lung,custom:true});
+  }
+  S.set('kp_piste',JSON.stringify(pisteCustom));
+  pistaEditId=null;
+  closeMo('mo-pista');
+  renderPiste();
+}
+
+function eliminaPista(id){
+  if(!confirm('Eliminare questa pista?')) return;
+  var np=[];
+  for(var i=0;i<pisteCustom.length;i++){if(pisteCustom[i].id!==id)np.push(pisteCustom[i]);}
+  pisteCustom=np;
+  S.set('kp_piste',JSON.stringify(pisteCustom));
+  renderPiste();
+}
 
 var KZ_MARCE = [
   {l:'1a',r:2.615},{l:'2a',r:1.882},{l:'3a',r:1.450},
@@ -804,7 +949,12 @@ function setCat(el,cat){
 function renderPiste(){
   var q=(document.getElementById('piste-search')||{}).value||'';
   var el=document.getElementById('piste-list');
-  var items=PISTE.filter(function(p){
+  // Piste predefinite filtrate per override custom
+  var overrideIds={};
+  for(var i=0;i<pisteCustom.length;i++){if(pisteCustom[i].override)overrideIds[pisteCustom[i].id]=true;}
+  var base=PISTE.filter(function(p){return !overrideIds[p.nome];});
+  var tutteLe=pisteCustom.concat(base);
+  var items=tutteLe.filter(function(p){
     var mq=!q||p.nome.toLowerCase().indexOf(q.toLowerCase())>=0||p.loc.toLowerCase().indexOf(q.toLowerCase())>=0;
     var mc=!catFiltro||p.cat.indexOf(catFiltro)>=0;
     return mq&&mc;
@@ -816,7 +966,11 @@ function renderPiste(){
     var pista=items[i];
     var c=pista.c[cat];var pp=pista.p[cat];var v=pista.v[cat];
     var tags=pista.cat.map(function(x){return '<span class="sc-tag">'+x+'</span>';}).join('');
-    h+='<div class="pc"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><div class="sc-n">'+pista.nome+'</div><div class="sc-d">&#128205; '+pista.loc+' - '+pista.lung+'m</div></div></div><div class="pg"><div class="pb2"><div class="pl">Corona</div><div class="pv">'+(c||'--')+'</div></div><div class="pb2"><div class="pl">Pignone</div><div class="pv">'+(pp||'--')+'</div></div><div class="pb2"><div class="pl">V-max est.</div><div class="pv">'+(v?v+' km/h':'--')+'</div></div></div><div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap">'+tags+'</div>'+(c&&pp?'<button class="cb" onclick="caricaPista('+c+','+pp+')">&#9654; Usa questo rapporto nel calcolo</button>':'')+'</div>';
+    var editId=pista.custom?pista.id:pista.nome;
+    var editBtn='<button class="db" onclick="openModificaPista(\''+editId+'\')" style="margin-left:4px" title="Modifica">&#9998;</button>';
+    var delBtn=pista.custom?'<button class="db" onclick="eliminaPista('+pista.id+')" title="Elimina">&#10005;</button>':'';
+    var customTag=pista.custom?'<span class="sc-tag hl">Mia pista</span>':'';
+    h+='<div class="pc"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div style="flex:1"><div class="sc-n">'+pista.nome+' '+customTag+'</div><div class="sc-d">&#128205; '+pista.loc+(pista.lung?' - '+pista.lung+'m':'')+'</div></div><div style="display:flex;gap:2px">'+editBtn+delBtn+'</div></div><div class="pg"><div class="pb2"><div class="pl">Corona</div><div class="pv">'+(c||'--')+'</div></div><div class="pb2"><div class="pl">Pignone</div><div class="pv">'+(pp||'--')+'</div></div><div class="pb2"><div class="pl">V-max est.</div><div class="pv">'+(v?v+' km/h':'--')+'</div></div></div><div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap">'+tags+'</div>'+(c&&pp?'<button class="cb" onclick="caricaPista('+c+','+pp+')">&#9654; Usa questo rapporto nel calcolo</button>':'')+'</div>';
   }
   el.innerHTML=h;
 }
